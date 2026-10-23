@@ -4,11 +4,13 @@ import { LogicalMark } from "@/components/LogicalMark";
 import { TextMorph } from "torph/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { OptionGroup, OptionRow, Segmented } from "@/components/Chrome";
 import { applyTheme, loadTheme, type Theme } from "@/lib/theme";
 import { appVersion, checkForUpdate, installUpdate, type Update } from "@/lib/update";
 import { openExternal } from "@/lib/desktop";
+import { LANGUAGES, lang, setLanguage, t, type Lang } from "@/lib/i18n";
 
 type UpdateState =
   | { kind: "idle" }
@@ -49,32 +51,32 @@ export function SettingsDialog({ open, onOpenChange, company }: { open: boolean;
 
   const status =
     state.kind === "checking"
-      ? "Controllo in corso…"
+      ? t("Controllo in corso…")
       : state.kind === "latest"
-        ? "Hai l'ultima versione"
+        ? t("Hai l'ultima versione")
         : state.kind === "available"
-          ? `Disponibile la ${state.update.version}`
+          ? t("Disponibile la {version}", { version: state.update.version })
           : state.kind === "installing"
             ? state.progress === null
-              ? "Download in corso…"
-              : `Download ${Math.round(state.progress * 100)}%`
+              ? t("Download in corso…")
+              : t("Download {n}%", { n: Math.round(state.progress * 100) })
             : state.kind === "error"
-              ? "Controllo non riuscito"
-              : "Controlla se c'è una versione nuova";
+              ? t("Controllo non riuscito")
+              : t("Controlla se c'è una versione nuova");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Impostazioni</DialogTitle>
+          <DialogTitle>{t("Impostazioni")}</DialogTitle>
         </DialogHeader>
         <Segmented
           value={tab}
           onChange={setTab}
           options={[
-            { value: "general", label: "Generale" },
-            ...(company ? [{ value: "company" as const, label: "Azienda" }] : []),
-            { value: "ai", label: "Assistenti AI" },
+            { value: "general", label: t("Generale") },
+            ...(company ? [{ value: "company" as const, label: t("Azienda") }] : []),
+            { value: "ai", label: t("Assistenti AI") },
           ]}
         />
         {tab === "ai" && <McpSettings />}
@@ -82,48 +84,57 @@ export function SettingsDialog({ open, onOpenChange, company }: { open: boolean;
         {tab === "general" && (
         <>
         <OptionGroup>
-          <OptionRow label="Aspetto">
+          <OptionRow label={t("Aspetto")}>
             <Segmented<Theme>
               value={theme}
-              onChange={(t) => {
-                setTheme(t);
-                applyTheme(t);
+              onChange={(next) => {
+                setTheme(next);
+                applyTheme(next);
               }}
               options={[
-                { value: "system", label: "Sistema" },
-                { value: "light", label: "Chiaro" },
-                { value: "dark", label: "Scuro" },
+                { value: "system", label: t("Sistema") },
+                { value: "light", label: t("Chiaro") },
+                { value: "dark", label: t("Scuro") },
               ]}
             />
           </OptionRow>
+          <OptionRow label={t("Lingua")}>
+            <NativeSelect value={lang} onChange={(e) => setLanguage(e.target.value as Lang)}>
+              {LANGUAGES.map((l) => (
+                <NativeSelectOption key={l.code} value={l.code}>
+                  {l.label}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </OptionRow>
         </OptionGroup>
         <OptionGroup>
-          <OptionRow label="Versione" hint="Realizzato da Logical">
+          <OptionRow label={t("Versione")} hint={t("Realizzato da Logical")}>
             <span className="flex items-center gap-2 text-[13px] text-muted-foreground tabular-nums">
               {version}
               <LogicalMark className="size-5 text-foreground" />
             </span>
           </OptionRow>
-          <OptionRow label="Licenze" hint="CC BY-NC-SA 4.0; Ghostscript è AGPL-3.0">
+          <OptionRow label={t("Licenze")} hint={t("CC BY-NC-SA 4.0; Ghostscript è AGPL-3.0")}>
             <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={() => openExternal("https://github.com/logical-tech/pdf-toolkit/blob/main/THIRD_PARTY_NOTICES.md")}>
-              Mostra
+              {t("Mostra")}
             </Button>
           </OptionRow>
           <div className="flex min-h-12 items-center justify-between gap-4 px-3.5 py-2.5">
             <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="text-[13px] font-medium">Aggiornamenti</span>
+              <span className="text-[13px] font-medium">{t("Aggiornamenti")}</span>
               <span className="text-xs text-muted-foreground tabular-nums" title={state.kind === "error" ? state.message : undefined}>
                 <TextMorph>{status}</TextMorph>
               </span>
             </div>
             {state.kind === "available" ? (
               <Button className="h-8 rounded-[10px] px-3" onClick={() => install(state.update)}>
-                Installa e riavvia
+                {t("Installa e riavvia")}
               </Button>
             ) : (
               <Button variant="secondary" className="h-8 rounded-[10px] px-3" disabled={state.kind === "checking" || state.kind === "installing" || version === "dev"} onClick={check}>
                 {(state.kind === "checking" || state.kind === "installing") && <Loader2 className="animate-spin" />}
-                Controlla
+                {t("Controlla")}
               </Button>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { getDocument, type PDFDocumentProxy, type PDFPageProxy } from "pdfjs-dist";
 import type { Compression } from "@/lib/tools";
+import { locale } from "@/lib/i18n";
 
 // A loaded PDF file. The first source is the "base": its form fields stay live and its pages keep their objects on export.
 export type Source = { id: string; name: string; bytes: Uint8Array; password?: string; pdf: PDFDocumentProxy; pages: PDFPageProxy[] };
@@ -205,7 +206,7 @@ export function textWidth(text: string, size: number) {
 // Stamps compile to plain text items per page, so the editor preview and the export share one drawing path.
 export function expandStamps(stamps: Stamps, pages: PageRef[], sources: Source[], fileName = ""): TextItem[] {
   const out: TextItem[] = [];
-  const today = new Date().toLocaleDateString("it-IT");
+  const today = new Date().toLocaleDateString(locale);
   pages.forEach((ref, i) => {
     const { width: W, height: H } = viewportOf(pageProxy(sources, ref), ref, 1);
     const c = cropOf(ref);

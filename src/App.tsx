@@ -103,6 +103,7 @@ import { buildTools, runTool, type McpContext } from "@/lib/mcp-tools";
 import { serveMcp } from "@/lib/mcp";
 import { listen } from "@tauri-apps/api/event";
 import { cn } from "@/lib/utils";
+import { locale, t } from "@/lib/i18n";
 import { WriterView, type WriterHandle } from "@/writer/WriterView";
 import { parse as parseLptk, saveLptk, saveLptkAs, type LptkFile } from "@/writer/file";
 import { CompanySettings } from "@/writer/company";
@@ -122,12 +123,12 @@ const EMPTY_WORK: Work = { pages: [], items: [], edits: {}, stamps: NO_STAMPS, b
 // In the macOS window the title bar is transparent, so the top-left capsule clears the traffic lights.
 const MAC_WINDOW = isTauri() && /Mac/.test(navigator.userAgent);
 const STAMP_PRESETS = [
-  { label: "Approvato", color: "#1f7a45" },
-  { label: "Respinto", color: "#c62828" },
-  { label: "Copia conforme", color: "#1d3fa8" },
-  { label: "Pagato", color: "#1f7a45" },
-  { label: "Urgente", color: "#c62828" },
-  { label: "Bozza", color: "#6b6b6b" },
+  { label: t("Approvato"), color: "#1f7a45" },
+  { label: t("Respinto"), color: "#c62828" },
+  { label: t("Copia conforme"), color: "#1d3fa8" },
+  { label: t("Pagato"), color: "#1f7a45" },
+  { label: t("Urgente"), color: "#c62828" },
+  { label: t("Bozza"), color: "#6b6b6b" },
 ];
 
 const refsOf = (src: Source): PageRef[] => src.pages.map((_, index) => ({ id: crypto.randomUUID(), source: src.id, index, rotation: 0 }));
@@ -205,14 +206,14 @@ export default function App() {
 
   const confirmDiscard = async (unsaved = dirty) => {
     if (!unsaved) return true;
-    const message = "Le modifiche non salvate andranno perse. Continuare?";
-    return isTauri() ? ask(message, { title: "Modifiche non salvate", kind: "warning", okLabel: "Continua", cancelLabel: "Annulla" }) : window.confirm(message);
+    const message = t("Le modifiche non salvate andranno perse. Continuare?");
+    return isTauri() ? ask(message, { title: t("Modifiche non salvate"), kind: "warning", okLabel: t("Continua"), cancelLabel: t("Annulla") }) : window.confirm(message);
   };
 
   // A signed .p7m opens as the PDF it wraps; it cannot be saved back in place.
   const unwrap = (f: OpenedFile): OpenedFile => {
     if (!/\.p7m$/i.test(f.name)) return f;
-    toast("Documento estratto dal file firmato (firma non verificata)");
+    toast(t("Documento estratto dal file firmato (firma non verificata)"));
     return { name: f.name.replace(/\.p7m$/i, ""), bytes: extractP7m(f.bytes) };
   };
 
@@ -225,10 +226,10 @@ export default function App() {
         const s = await loadSource(f.name, f.bytes, () => askPassword(f.name));
         if (s) out.push(s);
       } catch (e) {
-        toast.error(`Impossibile aprire ${raw.name}: ${(e as Error).message}`);
+        toast.error(t("Impossibile aprire {name}: {error}", { name: raw.name, error: (e as Error).message }));
       }
     }
-    if (images.length) out.push((await loadSource("Immagini.pdf", await imagesToPdf(images), async () => null))!);
+    if (images.length) out.push((await loadSource(t("Immagini.pdf"), await imagesToPdf(images), async () => null))!);
     return out;
   };
 
@@ -256,7 +257,7 @@ export default function App() {
     if (!srcs.length) return;
     setDoc((d) => d && { ...d, sources: [...d.sources, ...srcs] });
     setWork((w) => ({ ...w, pages: [...w.pages, ...srcs.flatMap(refsOf)] }), "pages");
-    toast.success(`${srcs.reduce((n, s) => n + s.pages.length, 0)} pagine aggiunte`);
+    toast.success(t("{n} pagine aggiunte", { n: srcs.reduce((n, s) => n + s.pages.length, 0) }));
   };
 
   const ingest = async (files: File[]) => {
@@ -274,7 +275,13 @@ export default function App() {
     if (next.path) setRecent(pushRecent(next.path));
     return true;
   };
-  const newDocument = () => openWriter({ file: null, name: "Documento senza titolo", saved: null });
+  // Back to the last save; a document never saved goes away entirely.
+  const discardWriter = async () => {
+    if (!(await confirmDiscard(true))) return;
+    if (writer?.saved) setWriter((w) => w && { ...w, file: w.saved });
+    else (setWriter(null), setMode("pdf"));
+  };
+  const newDocument = () => openWriter({ file: null, name: t("Documento senza titolo"), saved: null });
   const openFile = async (file: OpenedFile | null) => {
     if (file && /\.lptk$/i.test(file.name)) {
       const parsed = parseLptk(file.bytes);
@@ -316,7 +323,7 @@ export default function App() {
     try {
       if (await job(doc)) toast.success(label);
     } catch (e) {
-      toast.error(`Operazione non riuscita: ${(e as Error).message}`);
+      toast.error(t("Operazione non riuscita: {error}", { error: (e as Error).message }));
     } finally {
       busyRef.current = false;
       setBusy(false);
@@ -335,7 +342,7 @@ export default function App() {
   const save = () => {
     if (!doc?.path) return setSaveOpen(true);
     const path = doc.path;
-    run("PDF salvato", async (d) => {
+    run(t("PDF salvato"), async (d) => {
       let bytes = await build(d, work.pages, d.protection);
       if (d.protection.pdfa) bytes = await convertPdfa(bytes);
       await overwritePdf(path, bytes);
@@ -344,10 +351,10 @@ export default function App() {
     });
   };
   const saveAs = () =>
-    run("PDF salvato", async (d) => {
+    run(t("PDF salvato"), async (d) => {
       let bytes = await build(d, work.pages, options.pdfa ? { ...options, password: "", restrict: null } : options);
       if (options.pdfa) bytes = await convertPdfa(bytes);
-      const out = await savePdfAs(d.path ? d.name : `${baseName}-modificato.pdf`, bytes);
+      const out = await savePdfAs(d.path ? d.name : t("{name}-modificato.pdf", { name: baseName }), bytes);
       if (!out) return false;
       if (out.path) {
         const protection = options.pdfa ? { password: "", restrict: null, pdfa: true } : { password: options.password, restrict: options.restrict, pdfa: false };
@@ -370,25 +377,25 @@ export default function App() {
       setTimeout(() => setSaved(false), 2000);
       return out.path || out.name;
     } catch (e) {
-      toast.error(`Salvataggio non riuscito: ${(e as Error).message ?? e}`);
+      toast.error(t("Salvataggio non riuscito: {error}", { error: String((e as Error).message ?? e) }));
       return null;
     }
   };
   const openPdfBytes = (name: string, bytes: Uint8Array, path?: string) => openFile({ name, bytes, path }).catch((e) => (toast.error(String(e)), false));
   const exportWriterPdf = async (bytes: Uint8Array, name: string) => {
     const out = await savePdfAs(name, bytes).catch((e) => (toast.error(String(e)), null));
-    if (out) toast.success("PDF esportato", { action: { label: "Apri per firmare", onClick: () => void openPdfBytes(out.name, bytes, out.path || undefined) } });
+    if (out) toast.success(t("PDF esportato"), { action: { label: t("Apri per firmare"), onClick: () => void openPdfBytes(out.name, bytes, out.path || undefined) } });
   };
-  const print = () => run("Inviato alla stampa", async (d) => (await printPdf(await build(d, work.pages, { ...options, password: "", restrict: null, pdfa: false })), true));
-  const extract = (ids: string[]) => run("Pagine estratte", async (d) => !!(await savePdfAs(`${baseName}-estratto.pdf`, await build(d, refsById(ids)))));
+  const print = () => run(t("Inviato alla stampa"), async (d) => (await printPdf(await build(d, work.pages, { ...options, password: "", restrict: null, pdfa: false })), true));
+  const extract = (ids: string[]) => run(t("Pagine estratte"), async (d) => !!(await savePdfAs(t("{name}-estratto.pdf", { name: baseName }), await build(d, refsById(ids)))));
   const split = (groups: number[][]) =>
-    run(`Creati ${groups.length} file`, async (d) => {
+    run(t("Creati {n} file", { n: groups.length }), async (d) => {
       const files = [];
       for (const [i, g] of groups.entries()) files.push({ name: `${baseName}-${i + 1}.pdf`, bytes: await build(d, g.map((n) => work.pages[n - 1])) });
       return saveFiles(files);
     });
   const exportImages = (ids: string[]) =>
-    run("Immagini salvate", async (d) => {
+    run(t("Immagini salvate"), async (d) => {
       const refs = refsById(ids);
       const pdf = await getDocument({ data: await build(d, refs, { ...options, password: "", restrict: null }) }).promise;
       const files = [];
@@ -425,7 +432,7 @@ export default function App() {
   };
   const pickImage = async () => {
     const [file] = await pickFiles("image/*");
-    if (file) placeImage(await imageToPngDataUrl(file), 200, "Clicca sulla pagina dove vuoi l'immagine");
+    if (file) placeImage(await imageToPngDataUrl(file), 200, t("Clicca sulla pagina dove vuoi l'immagine"));
   };
   const nextFieldName = () => {
     const taken = new Set([...(doc?.fields.map((f) => f.name) ?? []), ...work.items.flatMap((i) => (i.kind === "field" ? [i.name] : []))]);
@@ -447,7 +454,7 @@ export default function App() {
       const ocr = { ...w.ocr };
       let dropped = 0;
       for (const id of Object.keys(ocr)) if (before.get(id)?.rotation !== after.get(id)?.rotation && after.has(id)) (delete ocr[id], dropped++);
-      if (dropped) setTimeout(() => toast("Pagina ruotata: riesegui l'OCR su quella pagina"));
+      if (dropped) setTimeout(() => toast(t("Pagina ruotata: riesegui l'OCR su quella pagina")));
       return { ...w, pages: next, items, ocr };
     }, "pages");
   };
@@ -457,7 +464,7 @@ export default function App() {
     const at = afterId ? work.pages.findIndex((p) => p.id === afterId) : work.pages.length - 1;
     const near = work.pages[at] ?? work.pages[0];
     const size = near ? visibleSize(pageProxy(doc.sources, near), near) : { width: 595.28, height: 841.89 };
-    const src = (await loadSource("Pagina bianca.pdf", await blankPdf(size.width, size.height), async () => null))!;
+    const src = (await loadSource(t("Pagina bianca.pdf"), await blankPdf(size.width, size.height), async () => null))!;
     setDoc((d) => d && { ...d, sources: [...d.sources, src] });
     setWork((w) => ({ ...w, pages: [...w.pages.slice(0, at + 1), ...refsOf(src), ...w.pages.slice(at + 1)] }), "pages");
   };
@@ -476,7 +483,7 @@ export default function App() {
   };
 
   const cleanScans = (ids: string[], o: CleanOptions) =>
-    run("Scansioni pulite", async (d) => {
+    run(t("Scansioni pulite"), async (d) => {
       const refs = refsById(ids);
       const { PDFDocument } = await import("@cantoo/pdf-lib");
       const out = await PDFDocument.create();
@@ -494,7 +501,7 @@ export default function App() {
         const { width, height } = viewportOf(pageProxy(d.sources, ref), ref, 1);
         out.addPage([width, height]).drawImage(embedded, { x: 0, y: 0, width, height });
       }
-      const src = (await loadSource("Scansione pulita.pdf", await out.save(), async () => null))!;
+      const src = (await loadSource(t("Scansione pulita.pdf"), await out.save(), async () => null))!;
       setDoc((cur) => cur && { ...cur, sources: [...cur.sources, src] });
       setWork((w) => {
         const ocr = { ...w.ocr };
@@ -508,25 +515,25 @@ export default function App() {
     const refs = refsById(ids);
     const found: Work["ocr"] = {};
     let words = 0;
-    const t = toast.loading("Riconoscimento del testo…");
+    const tid = toast.loading(t("Riconoscimento del testo…"));
     try {
       for (const [i, ref] of refs.entries()) {
-        toast.loading(`Riconoscimento del testo: pagina ${i + 1} di ${refs.length}`, { id: t });
+        toast.loading(t("Riconoscimento del testo: pagina {page} di {total}", { page: i + 1, total: refs.length }), { id: tid });
         const canvas = await renderPage(ref, 2);
         const list = await ocrCanvas(canvas);
         found[ref.id] = list.map((w) => ({ text: w.text, x: w.x0 / 2, y: w.y0 / 2, w: (w.x1 - w.x0) / 2, h: (w.y1 - w.y0) / 2 }));
         words += list.length;
       }
     } finally {
-      toast.dismiss(t);
+      toast.dismiss(tid);
     }
     setWork((w) => ({ ...w, ocr: { ...w.ocr, ...found } }), "ocr");
     return words;
   };
   const recognise = (ids: string[]) =>
-    run("Testo riconosciuto", async () => {
+    run(t("Testo riconosciuto"), async () => {
       const words = await ocrPages(ids);
-      toast(`${words} parole riconosciute: dopo il salvataggio il testo sarà ricercabile e copiabile`);
+      toast(t("{n} parole riconosciute: dopo il salvataggio il testo sarà ricercabile e copiabile", { n: words }));
       return true;
     });
 
@@ -564,7 +571,7 @@ export default function App() {
       return "Ho aperto la finestra Salva come nell'app: l'utente sceglie opzioni e posizione.";
     },
     ocr: ocrPages,
-    confirm: (message) => (isTauri() ? ask(message, { title: "Assistente AI", kind: "warning", okLabel: "Consenti", cancelLabel: "Rifiuta" }) : Promise.resolve(window.confirm(message))),
+    confirm: (message) => (isTauri() ? ask(message, { title: t("Assistente AI"), kind: "warning", okLabel: t("Consenti"), cancelLabel: t("Rifiuta") }) : Promise.resolve(window.confirm(message))),
     extraTools: () =>
       writerTools({
         handle: () => writerRef.current,
@@ -712,12 +719,12 @@ export default function App() {
 
   // Quiet update check shortly after launch; the toast offers the install, Settings shows the details.
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       checkForUpdate()
-        .then((u) => u && toast(`È disponibile la versione ${u.version}`, { duration: 10000, action: { label: "Installa", onClick: () => installUpdate(u, () => {}).catch((e) => toast.error(String(e))) } }))
+        .then((u) => u && toast(t("È disponibile la versione {version}", { version: u.version }), { duration: 10000, action: { label: t("Installa"), onClick: () => installUpdate(u, () => {}).catch((e) => toast.error(String(e))) } }))
         .catch(() => {});
     }, 4000);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -765,7 +772,7 @@ export default function App() {
   useEffect(() => {
     if (!isTauri()) return;
     const off = getCurrentWindow().onCloseRequested(async (e) => {
-      if (dirtyRef.current && !(await ask("Ci sono modifiche non salvate. Chiudere comunque?", { title: "Modifiche non salvate", kind: "warning", okLabel: "Chiudi", cancelLabel: "Annulla" }))) e.preventDefault();
+      if (dirtyRef.current && !(await ask(t("Ci sono modifiche non salvate. Chiudere comunque?"), { title: t("Modifiche non salvate"), kind: "warning", okLabel: t("Chiudi"), cancelLabel: t("Annulla") }))) e.preventDefault();
     });
     return () => void off.then((f) => f());
   }, []);
@@ -787,18 +794,18 @@ export default function App() {
             ? "shape"
             : t.kind;
   const tools: { key: string; label: string; shortcut: string; icon: React.ReactNode; pick: () => void }[] = [
-    { key: "select", label: "Seleziona", shortcut: "V", icon: <MousePointer2 />, pick: () => setTool({ kind: "select" }) },
-    { key: "text", label: "Testo", shortcut: "T", icon: <Type />, pick: () => setTool({ kind: "text" }) },
-    { key: "date", label: "Data di oggi", shortcut: "D", icon: <CalendarDays />, pick: () => setTool({ kind: "text", preset: new Date().toLocaleDateString("it-IT") }) },
-    { key: "sign", label: "Firma", shortcut: "S", icon: <PenLine />, pick: () => setSigOpen(true) },
-    { key: "image", label: "Immagine", shortcut: "I", icon: <ImagePlus />, pick: pickImage },
-    { key: "check", label: "Spunta", shortcut: "K", icon: <Check />, pick: () => setTool({ kind: "image", src: marks.check, ratio: 1, width: 14 }) },
-    { key: "cross", label: "Croce", shortcut: "X", icon: <X />, pick: () => setTool({ kind: "image", src: marks.cross, ratio: 1, width: 14 }) },
-    { key: "pen", label: "Penna", shortcut: "P", icon: <Pencil />, pick: () => setTool({ kind: "pen", color: "#1d3fa8", width: 1.5 }) },
-    { key: "note", label: "Commento", shortcut: "C", icon: <MessageSquarePlus />, pick: () => setTool({ kind: "note" }) },
-    { key: "highlight", label: "Evidenzia", shortcut: "H", icon: <Highlighter />, pick: () => setTool({ kind: "rect", style: "highlight" }) },
-    { key: "cover", label: "Copri con bianco", shortcut: "E", icon: <Eraser />, pick: () => setTool({ kind: "rect", style: "cover" }) },
-    { key: "redact", label: "Oscura (rimuove il contenuto sotto)", shortcut: "R", icon: <EyeOff />, pick: () => setTool({ kind: "rect", style: "redact" }) },
+    { key: "select", label: t("Seleziona"), shortcut: "V", icon: <MousePointer2 />, pick: () => setTool({ kind: "select" }) },
+    { key: "text", label: t("Testo"), shortcut: "T", icon: <Type />, pick: () => setTool({ kind: "text" }) },
+    { key: "date", label: t("Data di oggi"), shortcut: "D", icon: <CalendarDays />, pick: () => setTool({ kind: "text", preset: new Date().toLocaleDateString(locale) }) },
+    { key: "sign", label: t("Firma"), shortcut: "S", icon: <PenLine />, pick: () => setSigOpen(true) },
+    { key: "image", label: t("Immagine"), shortcut: "I", icon: <ImagePlus />, pick: pickImage },
+    { key: "check", label: t("Spunta"), shortcut: "K", icon: <Check />, pick: () => setTool({ kind: "image", src: marks.check, ratio: 1, width: 14 }) },
+    { key: "cross", label: t("Croce"), shortcut: "X", icon: <X />, pick: () => setTool({ kind: "image", src: marks.cross, ratio: 1, width: 14 }) },
+    { key: "pen", label: t("Penna"), shortcut: "P", icon: <Pencil />, pick: () => setTool({ kind: "pen", color: "#1d3fa8", width: 1.5 }) },
+    { key: "note", label: t("Commento"), shortcut: "C", icon: <MessageSquarePlus />, pick: () => setTool({ kind: "note" }) },
+    { key: "highlight", label: t("Evidenzia"), shortcut: "H", icon: <Highlighter />, pick: () => setTool({ kind: "rect", style: "highlight" }) },
+    { key: "cover", label: t("Copri con bianco"), shortcut: "E", icon: <Eraser />, pick: () => setTool({ kind: "rect", style: "cover" }) },
+    { key: "redact", label: t("Oscura (rimuove il contenuto sotto)"), shortcut: "R", icon: <EyeOff />, pick: () => setTool({ kind: "rect", style: "redact" }) },
   ];
   const toolButton = (key: string) => {
     const t = tools.find((x) => x.key === key)!;
@@ -904,14 +911,23 @@ export default function App() {
           </div>
         )}
 
-        {/* Transparent title bar: the empty strip still drags the window. */}
-        {MAC_WINDOW && <div data-tauri-drag-region className="absolute inset-x-0 top-0 h-9" />}
+        {/* The macOS title bar is hidden, so this strip behind the top capsules moves the window; double click zooms it like a native one. */}
+        {MAC_WINDOW && (
+          <div
+            className="absolute inset-x-0 top-0 h-[60px] border-b border-border/60 bg-canvas/80 backdrop-blur-md"
+            onMouseDown={(e) => {
+              if (e.button !== 0 || e.target !== e.currentTarget) return;
+              const win = getCurrentWindow();
+              void (e.detail === 2 ? win.toggleMaximize() : win.startDragging());
+            }}
+          />
+        )}
 
         <div className={cn("pointer-events-none absolute top-2.5 flex items-center gap-2", MAC_WINDOW ? "left-[84px]" : "left-3")}>
           <FloatBar>
             {doc && !inWriter && (
               <>
-                <ToolButton label="Indice e allegati" active={panelOpen} onClick={() => setPanelOpen((o) => !o)}>
+                <ToolButton label={t("Indice e allegati")} active={panelOpen} onClick={() => setPanelOpen((o) => !o)}>
                   <PanelLeft />
                 </ToolButton>
                 <BarDivider />
@@ -924,21 +940,21 @@ export default function App() {
                 }
               >
                 <span className="truncate">{inWriter ? writer.name : doc ? doc.name : "PDF Toolkit"}</span>
-                {(inWriter ? writerDirty : dirty) && <span aria-label="Modifiche non salvate" className="size-1.5 shrink-0 rounded-full bg-muted-foreground" />}
+                {(inWriter ? writerDirty : dirty) && <span aria-label={t("Modifiche non salvate")} className="size-1.5 shrink-0 rounded-full bg-muted-foreground" />}
                 <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" sideOffset={8} className="min-w-60">
                 <DropdownMenuItem onClick={newDocument}>
-                  <FilePen /> Nuovo documento
+                  <FilePen /> {t("Nuovo documento")}
                   <DropdownMenuShortcut>⌘N</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={open}>
-                  <FileUp /> Apri…
+                  <FileUp /> {t("Apri…")}
                   <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger disabled={!recent.length}>
-                    <Clock /> Apri recenti
+                    <Clock /> {t("Apri recenti")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="min-w-56">
                     {recent.map((r) => (
@@ -947,34 +963,34 @@ export default function App() {
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setRecent(clearRecent())}>Cancella elenco</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setRecent(clearRecent())}>{t("Cancella elenco")}</DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuItem disabled={!doc || inWriter} onClick={addPdf}>
-                  <FilePlus2 /> Aggiungi PDF…
+                  <FilePlus2 /> {t("Aggiungi PDF…")}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={inWriter} onClick={addImages}>
-                  <Images /> {doc ? "Aggiungi immagini…" : "Crea PDF da immagini…"}
+                  <Images /> {doc ? t("Aggiungi immagini…") : t("Crea PDF da immagini…")}
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={!doc || inWriter} onClick={startCompare}>
-                  <GitCompare /> Confronta con…
+                  <GitCompare /> {t("Confronta con…")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled={inWriter ? !writer.file : !doc} onClick={actions.current.save}>
-                  <Save /> Salva
+                  <Save /> {t("Salva")}
                   <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={inWriter ? !writer.file : !doc} onClick={actions.current.saveAs}>
-                  <FileDown /> Salva come…
+                  <FileDown /> {t("Salva come…")}
                   <DropdownMenuShortcut>⇧⌘S</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={!doc || inWriter} onClick={print}>
-                  <Printer /> Stampa…
+                  <Printer /> {t("Stampa…")}
                   <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
-                  <Settings /> Impostazioni…
+                  <Settings /> {t("Impostazioni…")}
                   <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -987,7 +1003,7 @@ export default function App() {
                   onChange={setMode}
                   options={[
                     { value: "pdf", label: "PDF", icon: <FileText /> },
-                    { value: "writer", label: "Documento", icon: <FilePen /> },
+                    { value: "writer", label: t("Documento"), icon: <FilePen /> },
                   ]}
                 />
               </>
@@ -999,15 +1015,15 @@ export default function App() {
                   value={view}
                   onChange={(v) => (setView(v), setSelectedId(null))}
                   options={[
-                    { value: "editor", label: "Modifica", icon: <SquarePen /> },
-                    { value: "pages", label: "Pagine", icon: <LayoutGrid /> },
+                    { value: "editor", label: t("Modifica"), icon: <SquarePen /> },
+                    { value: "pages", label: t("Pagine"), icon: <LayoutGrid /> },
                   ]}
                 />
                 <BarDivider />
-                <ToolButton label="Annulla" shortcut="⌘Z" disabled={!history.canUndo} onClick={undo}>
+                <ToolButton label={t("Annulla")} shortcut="⌘Z" disabled={!history.canUndo} onClick={undo}>
                   <Undo2 />
                 </ToolButton>
-                <ToolButton label="Ripeti" shortcut="⇧⌘Z" disabled={!history.canRedo} onClick={redo}>
+                <ToolButton label={t("Ripeti")} shortcut="⇧⌘Z" disabled={!history.canRedo} onClick={redo}>
                   <Redo2 />
                 </ToolButton>
               </>
@@ -1020,24 +1036,24 @@ export default function App() {
             <FloatBar>
               {!inWriter && view === "editor" && (
                 <>
-                  <ToolButton label="Cerca" shortcut="⌘F" active={!!search} onClick={() => setSearch((s) => (s ? null : { query: "", index: 0 }))}>
+                  <ToolButton label={t("Cerca")} shortcut="⌘F" active={!!search} onClick={() => setSearch((s) => (s ? null : { query: "", index: 0 }))}>
                     <Search />
                   </ToolButton>
-                  <ToolButton label="Timbri, intestazione e piè di pagina" active={stampsOpen} onClick={() => setStampsOpen((o) => !o)}>
+                  <ToolButton label={t("Timbri, intestazione e piè di pagina")} active={stampsOpen} onClick={() => setStampsOpen((o) => !o)}>
                     <Stamp />
                   </ToolButton>
                   <BarDivider />
-                  <ToolButton label="Riduci" shortcut="⌘−" onClick={() => zoom(-1)}>
+                  <ToolButton label={t("Riduci")} shortcut="⌘−" onClick={() => zoom(-1)}>
                     <Minus />
                   </ToolButton>
                   <button
                     onClick={fitWidth}
-                    title="Adatta alla larghezza (⌘0)"
+                    title={t("Adatta alla larghezza (⌘0)")}
                     className="h-8 min-w-12 rounded-[10px] px-1 text-[13px] font-medium tabular-nums outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <TextMorph>{`${Math.round(scale * 100)}%`}</TextMorph>
                   </button>
-                  <ToolButton label="Ingrandisci" shortcut="⌘+" onClick={() => zoom(1)}>
+                  <ToolButton label={t("Ingrandisci")} shortcut="⌘+" onClick={() => zoom(1)}>
                     <Plus />
                   </ToolButton>
                   <BarDivider />
@@ -1045,17 +1061,22 @@ export default function App() {
               )}
               {aiActive && (
                 <span className="float-enter flex h-8 items-center gap-1.5 px-2 text-xs font-medium text-ink" role="status">
-                  <Sparkles className="size-4 animate-pulse stroke-[1.75]" /> Assistente AI
+                  <Sparkles className="size-4 animate-pulse stroke-[1.75]" /> {t("Assistente AI")}
                 </span>
+              )}
+              {inWriter && writerDirty && !busy && (
+                <Button variant="ghost" className="h-8 rounded-[10px] px-3" onClick={discardWriter} title={writer.saved ? t("Torna all'ultima versione salvata") : t("Chiudi il documento senza salvarlo")}>
+                  {t("Scarta")}
+                </Button>
               )}
               <Button
                 className="h-8 rounded-[10px] px-3.5"
                 onClick={actions.current.save}
                 disabled={busy}
-                title={(inWriter ? writer.path : doc?.path) ? `Sovrascrive ${inWriter ? `${writer.name}.lptk` : doc!.name} (⌘S)` : "Scegli dove salvare (⌘S)"}
+                title={(inWriter ? writer.path : doc?.path) ? t("Sovrascrive {name} (⌘S)", { name: inWriter ? `${writer.name}.lptk` : doc!.name }) : t("Scegli dove salvare (⌘S)")}
               >
                 {busy ? <Loader2 className="animate-spin" /> : saved && <Check />}
-                <TextMorph>{busy ? "Attendi…" : saved ? "Salvato" : "Salva"}</TextMorph>
+                <TextMorph>{busy ? t("Attendi…") : saved ? t("Salvato") : t("Salva")}</TextMorph>
               </Button>
             </FloatBar>
           </div>
@@ -1069,31 +1090,31 @@ export default function App() {
 
         {!inWriter && doc && view === "editor" && (
           <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
-            <FloatBar role="toolbar" aria-label="Strumenti">
+            <FloatBar role="toolbar" aria-label={t("Strumenti")}>
               {["select", "text", "date"].map(toolButton)}
               <BarDivider />
               {toolButton("sign")}
               {toolButton("image")}
               <ToolMenu
-                label="Timbro"
+                label={t("Timbro")}
                 icon={<BadgeCheck />}
                 items={[
-                  ...STAMP_PRESETS.map((p) => ({ label: p.label, onPick: () => placeImage(stampDataUrl(p.label, p.color).src, 150, "Clicca sulla pagina dove vuoi il timbro") })),
-                  { label: `Ricevuto il ${new Date().toLocaleDateString("it-IT")}`, onPick: () => placeImage(stampDataUrl(`Ricevuto il ${new Date().toLocaleDateString("it-IT")}`, "#1d3fa8").src, 190, "Clicca sulla pagina dove vuoi il timbro") },
+                  ...STAMP_PRESETS.map((p) => ({ label: p.label, onPick: () => placeImage(stampDataUrl(p.label, p.color).src, 150, t("Clicca sulla pagina dove vuoi il timbro")) })),
+                  { label: t("Ricevuto il {date}", { date: new Date().toLocaleDateString(locale) }), onPick: () => placeImage(stampDataUrl(t("Ricevuto il {date}", { date: new Date().toLocaleDateString(locale) }), "#1d3fa8").src, 190, t("Clicca sulla pagina dove vuoi il timbro")) },
                 ]}
               />
               {["check", "cross"].map(toolButton)}
               <BarDivider />
               {toolButton("pen")}
               <ToolMenu
-                label="Forme"
+                label={t("Forme")}
                 icon={<Shapes />}
                 active={tool.kind === "shape"}
                 items={[
-                  { label: "Linea", icon: <Slash />, onPick: () => setTool({ kind: "shape", shape: "line" }) },
-                  { label: "Freccia", icon: <ArrowRight />, onPick: () => setTool({ kind: "shape", shape: "arrow" }) },
-                  { label: "Rettangolo", icon: <Square />, onPick: () => setTool({ kind: "shape", shape: "rect" }) },
-                  { label: "Ellisse", icon: <Circle />, onPick: () => setTool({ kind: "shape", shape: "ellipse" }) },
+                  { label: t("Linea"), icon: <Slash />, onPick: () => setTool({ kind: "shape", shape: "line" }) },
+                  { label: t("Freccia"), icon: <ArrowRight />, onPick: () => setTool({ kind: "shape", shape: "arrow" }) },
+                  { label: t("Rettangolo"), icon: <Square />, onPick: () => setTool({ kind: "shape", shape: "rect" }) },
+                  { label: t("Ellisse"), icon: <Circle />, onPick: () => setTool({ kind: "shape", shape: "ellipse" }) },
                 ]}
               />
               {toolButton("note")}
@@ -1101,12 +1122,12 @@ export default function App() {
               {["highlight", "cover", "redact"].map(toolButton)}
               <BarDivider />
               <ToolMenu
-                label="Campo modulo"
+                label={t("Campo modulo")}
                 icon={<FormInput />}
                 active={tool.kind === "field"}
                 items={[
-                  { label: "Campo di testo", icon: <TextCursorInput />, onPick: () => setTool({ kind: "field", field: "text" }) },
-                  { label: "Casella di spunta", icon: <SquareCheck />, onPick: () => setTool({ kind: "field", field: "checkbox" }) },
+                  { label: t("Campo di testo"), icon: <TextCursorInput />, onPick: () => setTool({ kind: "field", field: "text" }) },
+                  { label: t("Casella di spunta"), icon: <SquareCheck />, onPick: () => setTool({ kind: "field", field: "checkbox" }) },
                 ]}
               />
             </FloatBar>
@@ -1116,22 +1137,22 @@ export default function App() {
         {!inWriter && textSel && view === "editor" && (
           <div className="pointer-events-none fixed z-30 -translate-x-1/2" style={{ left: textSel.left, top: Math.max(8, textSel.top - 52) }}>
             <FloatBar onPointerDown={(e) => e.preventDefault()}>
-              <ToolButton label="Evidenzia" side="top" onClick={() => markup("highlight")}>
+              <ToolButton label={t("Evidenzia")} side="top" onClick={() => markup("highlight")}>
                 <Highlighter />
               </ToolButton>
-              <ToolButton label="Sottolinea" side="top" onClick={() => markup("underline")}>
+              <ToolButton label={t("Sottolinea")} side="top" onClick={() => markup("underline")}>
                 <Underline />
               </ToolButton>
-              <ToolButton label="Barra" side="top" onClick={() => markup("strike")}>
+              <ToolButton label={t("Barra")} side="top" onClick={() => markup("strike")}>
                 <Strikethrough />
               </ToolButton>
               <BarDivider />
               <ToolButton
-                label="Copia"
+                label={t("Copia")}
                 shortcut="⌘C"
                 side="top"
                 onClick={() => {
-                  navigator.clipboard.writeText(textSel.text).then(() => toast("Testo copiato"));
+                  navigator.clipboard.writeText(textSel.text).then(() => toast(t("Testo copiato")));
                   setTextSel(null);
                 }}
               >
@@ -1157,7 +1178,7 @@ export default function App() {
         )}
         {!inWriter && doc && compare && compareSides && <ComparePanel leftName={doc.name} left={compareSides.left} rightName={compare.name} right={compareSides.right} onClose={() => setCompare(null)} />}
 
-        <SignatureDialog open={sigOpen} onOpenChange={setSigOpen} onPick={(src) => placeImage(src, 160, "Clicca sulla pagina dove vuoi la firma")} />
+        <SignatureDialog open={sigOpen} onOpenChange={setSigOpen} onPick={(src) => placeImage(src, 160, t("Clicca sulla pagina dove vuoi la firma"))} />
         <SaveDialog open={saveOpen} onOpenChange={setSaveOpen} options={options} onOptions={setOptions} onSave={saveAs} ghostscript={ghostscript} />
         <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} company={<CompanySettings />} />
         <PasswordDialog

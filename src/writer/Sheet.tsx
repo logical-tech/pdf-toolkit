@@ -1,5 +1,6 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { extensions } from "./extensions";
 import { loadWriterFonts } from "./fonts";
@@ -27,7 +28,7 @@ export function Sheet({ content, margins, editable = true, onEditor, onUpdate, c
     content,
     editable,
     immediatelyRender: true,
-    editorProps: { attributes: { spellcheck: editable ? "true" : "false", "aria-label": "Documento" } },
+    editorProps: { attributes: { spellcheck: editable ? "true" : "false", "aria-label": t("Documento") } },
     onUpdate: ({ editor }) => update.current?.(editor.getJSON()),
   });
 

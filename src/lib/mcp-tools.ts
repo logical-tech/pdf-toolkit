@@ -19,6 +19,7 @@ import {
   type Stamps,
   type Work,
 } from "@/lib/document";
+import { t } from "@/lib/i18n";
 import { blankPdf, pageToPng, stampDataUrl } from "@/lib/tools";
 
 export type ToolResult = { content: ({ type: "text"; text: string } | { type: "image"; data: string; mimeType: string })[]; isError?: boolean; structuredContent?: unknown };
@@ -241,7 +242,7 @@ export function buildTools(ctx: McpContext): Tool[] {
         const saved = ctx.signatures();
         const src = saved[Number(a.signature ?? 1) - 1];
         if (!src) return fail("Nessuna firma salvata nell'app: l'utente deve prima crearne una con lo strumento Firma.");
-        if (!(await ctx.confirm(`Un assistente AI vuole inserire la tua firma a pagina ${a.page}. Consentire?`))) return fail("L'utente non ha autorizzato la firma.");
+        if (!(await ctx.confirm(t("Un assistente AI vuole inserire la tua firma a pagina {page}. Consentire?", { page: String(a.page) })))) return fail("L'utente non ha autorizzato la firma.");
         const img = new Image();
         img.src = src;
         await img.decode();
@@ -298,7 +299,7 @@ export function buildTools(ctx: McpContext): Tool[] {
           const after = Number(a.after ?? pages.length);
           const near = pages[Math.max(0, after - 1)];
           const size = near ? pageSize(near) : { width: 595, height: 842 };
-          const src = await ctx.loadBytes("Pagina bianca.pdf", await blankPdf(size.width, size.height));
+          const src = await ctx.loadBytes(t("Pagina bianca.pdf"), await blankPdf(size.width, size.height));
           ctx.addSource(src);
           ctx.update((w) => ({ ...w, pages: [...w.pages.slice(0, after), { id: id(), source: src.id, index: 0, rotation: 0 }, ...w.pages.slice(after)] }), g);
           return text(`Pagina bianca inserita dopo la ${after}.`);

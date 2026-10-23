@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
 import { TextMorph } from "torph/react";
 import { FloatBar, ToolButton } from "@/components/Chrome";
+import { t } from "@/lib/i18n";
 
 type Props = { query: string; onQuery: (q: string) => void; total: number; index: number; onStep: (dir: 1 | -1) => void; onClose: () => void };
 
@@ -14,8 +15,8 @@ export function SearchBar({ query, onQuery, total, index, onStep, onClose }: Pro
       <input
         ref={input}
         autoFocus
-        aria-label="Cerca nel documento"
-        placeholder="Cerca nel documento"
+        aria-label={t("Cerca nel documento")}
+        placeholder={t("Cerca nel documento")}
         value={query}
         onChange={(e) => onQuery(e.target.value)}
         onKeyDown={(e) => {
@@ -24,14 +25,14 @@ export function SearchBar({ query, onQuery, total, index, onStep, onClose }: Pro
         }}
         className="h-8 w-52 bg-transparent text-[13px] outline-none placeholder:text-muted-foreground"
       />
-      <span className="min-w-14 text-right text-xs text-muted-foreground tabular-nums">{query && <TextMorph>{total ? `${index + 1} di ${total}` : "Nessuno"}</TextMorph>}</span>
-      <ToolButton label="Precedente" shortcut="⇧↵" disabled={!total} onClick={() => onStep(-1)}>
+      <span className="min-w-14 text-right text-xs text-muted-foreground tabular-nums">{query && <TextMorph>{total ? t("{n} di {total}", { n: index + 1, total }) : t("Nessuno")}</TextMorph>}</span>
+      <ToolButton label={t("Precedente")} shortcut="⇧↵" disabled={!total} onClick={() => onStep(-1)}>
         <ChevronUp />
       </ToolButton>
-      <ToolButton label="Successivo" shortcut="↵" disabled={!total} onClick={() => onStep(1)}>
+      <ToolButton label={t("Successivo")} shortcut="↵" disabled={!total} onClick={() => onStep(1)}>
         <ChevronDown />
       </ToolButton>
-      <ToolButton label="Chiudi" shortcut="esc" onClick={onClose}>
+      <ToolButton label={t("Chiudi")} shortcut="esc" onClick={onClose}>
         <X />
       </ToolButton>
     </FloatBar>

@@ -5,6 +5,7 @@ import { Segmented, ToolButton } from "@/components/Chrome";
 import type { Attachment, Bookmark, PageRef, Source } from "@/lib/document";
 import { pickFiles, saveBytesAs } from "@/lib/io";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 type Props = {
   base: Source;
@@ -40,7 +41,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
   const addBookmark = () => {
     const page = currentPage ?? pages[0]?.id;
     if (!page) return;
-    const b = { id: crypto.randomUUID(), title: `Pagina ${pageNumber(page)}`, page };
+    const b = { id: crypto.randomUUID(), title: t("Pagina {n}", { n: pageNumber(page) }), page };
     onBookmarks([...bookmarks, b].sort((x, y) => pageNumber(x.page) - pageNumber(y.page)));
     setEditing(b.id);
   };
@@ -52,12 +53,12 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
           value={tab}
           onChange={setTab}
           options={[
-            { value: "outline", label: "Indice" },
-            { value: "files", label: "Allegati" },
+            { value: "outline", label: t("Indice") },
+            { value: "files", label: t("Allegati") },
           ]}
         />
         <div className="flex-1" />
-        <ToolButton label="Chiudi" onClick={onClose}>
+        <ToolButton label={t("Chiudi")} onClick={onClose}>
           <X />
         </ToolButton>
       </div>
@@ -72,7 +73,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
                   {editing === b.id ? (
                     <input
                       autoFocus
-                      aria-label="Titolo del segnalibro"
+                      aria-label={t("Titolo del segnalibro")}
                       defaultValue={b.title}
                       onBlur={(e) => {
                         onBookmarks(bookmarks.map((x) => (x.id === b.id ? { ...x, title: e.target.value.trim() || x.title } : x)));
@@ -82,21 +83,21 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
                       className="h-6 min-w-0 flex-1 rounded-[6px] bg-background px-1.5 outline-none focus:ring-2 focus:ring-ring"
                     />
                   ) : (
-                    <button className="min-w-0 flex-1 truncate text-left" onClick={() => n && onGo(b.page)} onDoubleClick={() => setEditing(b.id)} title="Doppio clic per rinominare">
+                    <button className="min-w-0 flex-1 truncate text-left" onClick={() => n && onGo(b.page)} onDoubleClick={() => setEditing(b.id)} title={t("Doppio clic per rinominare")}>
                       {b.title}
                     </button>
                   )}
                   <span className="text-xs text-muted-foreground tabular-nums">{n || "—"}</span>
-                  <button aria-label={`Elimina ${b.title}`} className="invisible rounded-[6px] p-0.5 text-muted-foreground group-hover:visible hover:text-destructive" onClick={() => onBookmarks(bookmarks.filter((x) => x.id !== b.id))}>
+                  <button aria-label={t("Elimina {name}", { name: b.title })} className="invisible rounded-[6px] p-0.5 text-muted-foreground group-hover:visible hover:text-destructive" onClick={() => onBookmarks(bookmarks.filter((x) => x.id !== b.id))}>
                     <Trash2 className="size-3.5" />
                   </button>
                 </li>
               );
             })}
-            {!bookmarks.length && <li className="px-2 py-3 text-muted-foreground">Nessun segnalibro. Aggiungine uno per la pagina che stai guardando.</li>}
+            {!bookmarks.length && <li className="px-2 py-3 text-muted-foreground">{t("Nessun segnalibro. Aggiungine uno per la pagina che stai guardando.")}</li>}
           </ul>
           <Button variant="secondary" className="h-8 rounded-[10px]" onClick={addBookmark}>
-            <BookmarkPlus /> Aggiungi segnalibro
+            <BookmarkPlus /> {t("Aggiungi segnalibro")}
           </Button>
         </>
       ) : (
@@ -107,17 +108,17 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
                 <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
                 <span className="min-w-0 flex-1 truncate">{a.name}</span>
                 <span className="text-xs text-muted-foreground tabular-nums">{Math.max(1, Math.round(a.bytes.length / 1024))} KB</span>
-                <button aria-label={`Salva ${a.name}`} className="rounded-[6px] p-0.5 text-muted-foreground hover:text-foreground" onClick={() => saveBytesAs(a.name, a.bytes)}>
+                <button aria-label={t("Salva {name}", { name: a.name })} className="rounded-[6px] p-0.5 text-muted-foreground hover:text-foreground" onClick={() => saveBytesAs(a.name, a.bytes)}>
                   <Download className="size-3.5" />
                 </button>
                 {a.added && (
-                  <button aria-label={`Rimuovi ${a.name}`} className="rounded-[6px] p-0.5 text-muted-foreground hover:text-destructive" onClick={() => onAttachments(attachments.filter((x) => x.name !== a.name))}>
+                  <button aria-label={t("Rimuovi {name}", { name: a.name })} className="rounded-[6px] p-0.5 text-muted-foreground hover:text-destructive" onClick={() => onAttachments(attachments.filter((x) => x.name !== a.name))}>
                     <Trash2 className="size-3.5" />
                   </button>
                 )}
               </li>
             ))}
-            {!existing.length && !attachments.length && <li className="px-2 py-3 text-muted-foreground">Questo PDF non ha file allegati.</li>}
+            {!existing.length && !attachments.length && <li className="px-2 py-3 text-muted-foreground">{t("Questo PDF non ha file allegati.")}</li>}
           </ul>
           <Button
             variant="secondary"
@@ -128,7 +129,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
               if (added.length) onAttachments([...attachments, ...added]);
             }}
           >
-            <FilePlus2 /> Allega file…
+            <FilePlus2 /> {t("Allega file…")}
           </Button>
         </>
       )}

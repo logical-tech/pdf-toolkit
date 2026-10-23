@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n.ts";
 import { DEFAULT_MARGINS, type JSONContent, type Margins } from "./model.ts";
 
 export type LptkFile = {
@@ -21,13 +22,13 @@ export function parse(input: string | Uint8Array): LptkFile {
   try {
     data = JSON.parse(typeof input === "string" ? input : new TextDecoder().decode(input));
   } catch {
-    throw new Error("Il file non è leggibile: non è un JSON valido.");
+    throw new Error(t("Il file non è leggibile: non è un JSON valido."));
   }
-  if (!isObj(data) || data.format !== "lptk") throw new Error("Questo file non è un documento PDF Toolkit (.lptk).");
-  if (data.version !== 1) throw new Error(`Questa versione del file (${String(data.version)}) non è supportata: aggiorna l'app.`);
-  if (data.kind !== "document") throw new Error("Questo .lptk non contiene un documento di testo.");
-  if (!isObj(data.content) || data.content.type !== "doc") throw new Error("Il contenuto del documento è danneggiato.");
+  if (!isObj(data) || data.format !== "lptk") throw new Error(t("Questo file non è un documento PDF Toolkit (.lptk)."));
+  if (data.version !== 1) throw new Error(t("Questa versione del file ({version}) non è supportata: aggiorna l'app.", { version: String(data.version) }));
+  if (data.kind !== "document") throw new Error(t("Questo .lptk non contiene un documento di testo."));
+  if (!isObj(data.content) || data.content.type !== "doc") throw new Error(t("Il contenuto del documento è danneggiato."));
   const m = isObj(data.page) && isObj(data.page.margins) ? data.page.margins : {};
   const margins = Object.fromEntries(Object.entries(DEFAULT_MARGINS).map(([k, d]) => [k, typeof m[k] === "number" && m[k] >= 0 && m[k] < 100 ? m[k] : d])) as Margins;
-  return { format: "lptk", version: 1, kind: "document", title: typeof data.title === "string" ? data.title : "Documento", content: data.content as JSONContent, page: { size: "A4", margins } };
+  return { format: "lptk", version: 1, kind: "document", title: typeof data.title === "string" ? data.title : t("Documento"), content: data.content as JSONContent, page: { size: "A4", margins } };
 }

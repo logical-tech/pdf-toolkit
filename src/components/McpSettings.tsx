@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { OptionGroup, OptionRow } from "@/components/Chrome";
 import { applyMcpConfig, connectSnippets, loadMcpConfig, mcpStatus, mcpUrl, newToken, type McpConfig, type McpStatus } from "@/lib/mcp";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -24,7 +25,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
           }
         >
           {copied ? <Check /> : <Copy />}
-          <TextMorph>{copied ? "Copiato" : "Copia"}</TextMorph>
+          <TextMorph>{copied ? t("Copiato") : t("Copia")}</TextMorph>
         </Button>
       </div>
       <pre className="max-h-32 overflow-auto rounded-[8px] bg-background px-2.5 py-2 font-mono text-[11px] leading-relaxed whitespace-pre-wrap break-all text-muted-foreground select-text">{value}</pre>
@@ -50,8 +51,8 @@ export function McpSettings() {
 
   useEffect(() => {
     mcpStatus().then(setStatus).catch(() => {});
-    const t = setInterval(() => mcpStatus().then(setStatus).catch(() => {}), 3000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => mcpStatus().then(setStatus).catch(() => {}), 3000);
+    return () => clearInterval(timer);
   }, []);
 
   const snippets = connectSnippets(config);
@@ -62,8 +63,8 @@ export function McpSettings() {
     <>
       <OptionGroup>
         <OptionRow
-          label="Collega Claude e altri assistenti AI"
-          hint={problem ? `Errore: ${problem}` : running ? `Attivo su ${mcpUrl(config)}${status?.clients ? ` · ${status.clients} connessioni` : ""}` : "Spento: nessun programma può controllare l'app"}
+          label={t("Collega Claude e altri assistenti AI")}
+          hint={problem ? t("Errore: {error}", { error: problem }) : running ? status?.clients ? t("Attivo su {url} · {n} connessioni", { url: mcpUrl(config), n: status.clients }) : t("Attivo su {url}", { url: mcpUrl(config) }) : t("Spento: nessun programma può controllare l'app")}
           htmlFor="mcp-enabled"
         >
           <span className="flex items-center gap-2">
@@ -71,16 +72,16 @@ export function McpSettings() {
             <Switch id="mcp-enabled" checked={config.enabled} onCheckedChange={(enabled) => apply({ ...config, enabled })} />
           </span>
         </OptionRow>
-        <OptionRow label="Chiave di accesso" hint="Chi ha la chiave può modificare i documenti aperti. Cambiala se l'hai condivisa per errore.">
+        <OptionRow label={t("Chiave di accesso")} hint={t("Chi ha la chiave può modificare i documenti aperti. Cambiala se l'hai condivisa per errore.")}>
           <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={() => apply({ ...config, token: newToken() })}>
-            <RefreshCw /> Rigenera
+            <RefreshCw /> {t("Rigenera")}
           </Button>
         </OptionRow>
       </OptionGroup>
 
       {config.enabled && (
         <OptionGroup>
-          <CopyField label="Claude Code (terminale)" value={snippets.claudeCode} />
+          <CopyField label={t("Claude Code (terminale)")} value={snippets.claudeCode} />
           <CopyField label="Claude Desktop (claude_desktop_config.json)" value={snippets.claudeDesktop} />
         </OptionGroup>
       )}

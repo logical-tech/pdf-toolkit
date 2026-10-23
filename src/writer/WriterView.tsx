@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BarDivider, FloatBar, ToolButton, ToolMenu } from "@/components/Chrome";
 import { pickFiles } from "@/lib/io";
+import { t } from "@/lib/i18n";
 import { createWriterApi, type WriterHandle } from "./api";
 import { BLOCKS } from "./blocks";
 import { Gallery } from "./Gallery";
@@ -96,7 +97,7 @@ export const WriterView = forwardRef<WriterHandle, Props>(function WriterView({ 
       </div>
       {editor && (
         <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-3">
-          <Toolbar editor={editor} margins={doc.page.margins} api={api.current} onExport={async () => onExportPdf(await api.current.exportPdf(), `${docRef.current?.title || "Documento"}.pdf`)} />
+          <Toolbar editor={editor} margins={doc.page.margins} api={api.current} onExport={async () => onExportPdf(await api.current.exportPdf(), `${docRef.current?.title || t("Documento")}.pdf`)} />
         </div>
       )}
     </div>
@@ -104,17 +105,17 @@ export const WriterView = forwardRef<WriterHandle, Props>(function WriterView({ 
 });
 
 const STYLES = [
-  { level: 0, label: "Testo", icon: <Pilcrow /> },
-  { level: 1, label: "Titolo 1", icon: <Heading1 /> },
-  { level: 2, label: "Titolo 2", icon: <Heading2 /> },
-  { level: 3, label: "Titolo 3", icon: <Heading3 /> },
+  { level: 0, label: t("Testo"), icon: <Pilcrow /> },
+  { level: 1, label: t("Titolo 1"), icon: <Heading1 /> },
+  { level: 2, label: t("Titolo 2"), icon: <Heading2 /> },
+  { level: 3, label: t("Titolo 3"), icon: <Heading3 /> },
 ] as const;
 
 const ALIGNS = [
-  { value: "left", label: "Allinea a sinistra", icon: <AlignLeft /> },
-  { value: "center", label: "Centra", icon: <AlignCenter /> },
-  { value: "right", label: "Allinea a destra", icon: <AlignRight /> },
-  { value: "justify", label: "Giustifica", icon: <AlignJustify /> },
+  { value: "left", label: t("Allinea a sinistra"), icon: <AlignLeft /> },
+  { value: "center", label: t("Centra"), icon: <AlignCenter /> },
+  { value: "right", label: t("Allinea a destra"), icon: <AlignRight /> },
+  { value: "justify", label: t("Giustifica"), icon: <AlignJustify /> },
 ] as const;
 
 function Toolbar({ editor, margins, api, onExport }: { editor: Editor; margins: LptkFile["page"]["margins"]; api: WriterHandle; onExport: () => Promise<void> }) {
@@ -146,7 +147,7 @@ function Toolbar({ editor, margins, api, onExport }: { editor: Editor; margins: 
       const max = (A4_MM.width - margins.left - margins.right) * MM_TO_PX;
       run().setImage({ src, width: Math.round(Math.min(img.naturalWidth / 2, max)) }).run();
     } catch {
-      toast.error("Immagine non leggibile");
+      toast.error(t("Immagine non leggibile"));
     }
   };
 
@@ -154,68 +155,68 @@ function Toolbar({ editor, margins, api, onExport }: { editor: Editor; margins: 
   const align = ALIGNS.find((a) => a.value === s.align)!;
 
   return (
-    <FloatBar role="toolbar" aria-label="Formattazione" className="max-w-full overflow-x-auto">
+    <FloatBar role="toolbar" aria-label={t("Formattazione")} className="max-w-full overflow-x-auto">
       <ToolMenu
-        label="Stile paragrafo"
+        label={t("Stile paragrafo")}
         active={s.level > 0}
         icon={style.icon}
         items={STYLES.map((st) => ({ label: st.label, icon: st.icon, onPick: () => (st.level ? run().setHeading({ level: st.level }).run() : run().setParagraph().run()) }))}
       />
       <BarDivider />
-      <ToolButton side="top" label="Grassetto" shortcut="⌘B" active={s.bold} onClick={() => run().toggleBold().run()}>
+      <ToolButton side="top" label={t("Grassetto")} shortcut="⌘B" active={s.bold} onClick={() => run().toggleBold().run()}>
         <Bold />
       </ToolButton>
-      <ToolButton side="top" label="Corsivo" shortcut="⌘I" active={s.italic} onClick={() => run().toggleItalic().run()}>
+      <ToolButton side="top" label={t("Corsivo")} shortcut="⌘I" active={s.italic} onClick={() => run().toggleItalic().run()}>
         <Italic />
       </ToolButton>
-      <ToolButton side="top" label="Sottolineato" shortcut="⌘U" active={s.underline} onClick={() => run().toggleUnderline().run()}>
+      <ToolButton side="top" label={t("Sottolineato")} shortcut="⌘U" active={s.underline} onClick={() => run().toggleUnderline().run()}>
         <Underline />
       </ToolButton>
       <BarDivider />
-      <ToolButton side="top" label="Elenco puntato" shortcut="⇧⌘8" active={s.bullet} onClick={() => run().toggleBulletList().run()}>
+      <ToolButton side="top" label={t("Elenco puntato")} shortcut="⇧⌘8" active={s.bullet} onClick={() => run().toggleBulletList().run()}>
         <List />
       </ToolButton>
-      <ToolButton side="top" label="Elenco numerato" shortcut="⇧⌘7" active={s.ordered} onClick={() => run().toggleOrderedList().run()}>
+      <ToolButton side="top" label={t("Elenco numerato")} shortcut="⇧⌘7" active={s.ordered} onClick={() => run().toggleOrderedList().run()}>
         <ListOrdered />
       </ToolButton>
-      <ToolMenu label="Allineamento" icon={align.icon} items={ALIGNS.map((a) => ({ label: a.label, icon: a.icon, onPick: () => run().setTextAlign(a.value).run() }))} />
+      <ToolMenu label={t("Allineamento")} icon={align.icon} items={ALIGNS.map((a) => ({ label: a.label, icon: a.icon, onPick: () => run().setTextAlign(a.value).run() }))} />
       <BarDivider />
       <ToolMenu
-        label="Tabella"
+        label={t("Tabella")}
         active={s.table}
         icon={<Table2 />}
         items={
           s.table
             ? [
-                { label: "Aggiungi riga sotto", onPick: () => run().addRowAfter().run() },
-                { label: "Aggiungi colonna a destra", onPick: () => run().addColumnAfter().run() },
-                { label: "Elimina riga", onPick: () => run().deleteRow().run() },
-                { label: "Elimina colonna", onPick: () => run().deleteColumn().run() },
-                { label: "Riga di intestazione sì/no", onPick: () => run().toggleHeaderRow().run() },
-                { label: "Elimina tabella", onPick: () => run().deleteTable().run() },
+                { label: t("Aggiungi riga sotto"), onPick: () => run().addRowAfter().run() },
+                { label: t("Aggiungi colonna a destra"), onPick: () => run().addColumnAfter().run() },
+                { label: t("Elimina riga"), onPick: () => run().deleteRow().run() },
+                { label: t("Elimina colonna"), onPick: () => run().deleteColumn().run() },
+                { label: t("Riga di intestazione sì/no"), onPick: () => run().toggleHeaderRow().run() },
+                { label: t("Elimina tabella"), onPick: () => run().deleteTable().run() },
               ]
             : [
-                { label: "Tabella 3 × 3", onPick: () => run().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
-                { label: "Tabella 2 × 4", onPick: () => run().insertTable({ rows: 4, cols: 2, withHeaderRow: false }).run() },
+                { label: t("Tabella 3 × 3"), onPick: () => run().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
+                { label: t("Tabella 2 × 4"), onPick: () => run().insertTable({ rows: 4, cols: 2, withHeaderRow: false }).run() },
               ]
         }
       />
-      <ToolButton side="top" label="Immagine" onClick={insertImage}>
+      <ToolButton side="top" label={t("Immagine")} onClick={insertImage}>
         <ImagePlus />
       </ToolButton>
-      <ToolButton side="top" label="Linea orizzontale" onClick={() => run().setHorizontalRule().run()}>
+      <ToolButton side="top" label={t("Linea orizzontale")} onClick={() => run().setHorizontalRule().run()}>
         <Minus />
       </ToolButton>
-      <ToolButton side="top" label="Interruzione di pagina" shortcut="⌘↵" onClick={() => run().insertContent({ type: "pageBreak" }).run()}>
+      <ToolButton side="top" label={t("Interruzione di pagina")} shortcut="⌘↵" onClick={() => run().insertContent({ type: "pageBreak" }).run()}>
         <SeparatorHorizontal />
       </ToolButton>
       <BarDivider />
-      <ToolMenu label="Blocchi" icon={<LayoutPanelTop />} items={BLOCKS.map((b) => ({ label: b.label, onPick: () => api.insertBlock(b.id) }))} />
+      <ToolMenu label={t("Blocchi")} icon={<LayoutPanelTop />} items={BLOCKS.map((b) => ({ label: b.label, onPick: () => api.insertBlock(b.id) }))} />
       <BarDivider />
-      <ToolButton side="top" label="Annulla" shortcut="⌘Z" disabled={!s.undo} onClick={() => run().undo().run()}>
+      <ToolButton side="top" label={t("Annulla")} shortcut="⌘Z" disabled={!s.undo} onClick={() => run().undo().run()}>
         <Undo2 />
       </ToolButton>
-      <ToolButton side="top" label="Ripristina" shortcut="⇧⌘Z" disabled={!s.redo} onClick={() => run().redo().run()}>
+      <ToolButton side="top" label={t("Ripristina")} shortcut="⇧⌘Z" disabled={!s.redo} onClick={() => run().redo().run()}>
         <Redo2 />
       </ToolButton>
       <BarDivider />
@@ -228,18 +229,18 @@ function Toolbar({ editor, margins, api, onExport }: { editor: Editor; margins: 
           try {
             await onExport();
           } catch (e) {
-            toast.error(`Esportazione non riuscita: ${(e as Error).message}`);
+            toast.error(t("Esportazione non riuscita: {error}", { error: (e as Error).message }));
           } finally {
             setExporting(false);
           }
         }}
       >
         {exporting ? <Loader2 className="animate-spin" /> : <FileDown />}
-        Esporta PDF
+        {t("Esporta PDF")}
       </Button>
     </FloatBar>
   );
 }
 
 /** A fresh document, e.g. for a "Nuovo" menu item that skips the gallery. */
-export const blankFile = () => newFile("Documento senza titolo", { type: "doc", content: [{ type: "paragraph" }] });
+export const blankFile = () => newFile(t("Documento senza titolo"), { type: "doc", content: [{ type: "paragraph" }] });

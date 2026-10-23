@@ -1,3 +1,4 @@
+import { t as tr } from "../lib/i18n.ts";
 import { h, p, pAlign, t, today, type CompanyData, type Item, type JSONContent, type PartyAttrs, type SignatureAttrs } from "./model.ts";
 
 export type BlockData = {
@@ -17,51 +18,51 @@ type Ctx = { company: CompanyData; data: BlockData };
 type Block = { id: string; label: string; description: string; build: (ctx: Ctx) => JSONContent[] };
 
 export const SAMPLE_PARTY: PartyAttrs = {
-  label: "Spett.le",
-  name: "[Ragione sociale del cliente]",
-  address: "[Via e numero, CAP Città (Prov.)]",
-  vat: "[P.IVA / Codice fiscale]",
-  email: "[email o PEC]",
+  label: tr("Spett.le"),
+  name: tr("[Ragione sociale del cliente]"),
+  address: tr("[Via e numero, CAP Città (Prov.)]"),
+  vat: tr("[P.IVA / Codice fiscale]"),
+  email: tr("[email o PEC]"),
 };
 
 export const SAMPLE_ITEMS: Item[] = [
-  { description: "[Analisi iniziale e definizione dei requisiti]", qty: 1, price: 600, vat: 22 },
-  { description: "[Realizzazione e configurazione, ore]", qty: 20, price: 45, vat: 22 },
-  { description: "[Formazione del personale, ore]", qty: 4, price: 50, vat: 22 },
+  { description: tr("[Analisi iniziale e definizione dei requisiti]"), qty: 1, price: 600, vat: 22 },
+  { description: tr("[Realizzazione e configurazione, ore]"), qty: 20, price: 45, vat: 22 },
+  { description: tr("[Formazione del personale, ore]"), qty: 4, price: 50, vat: 22 },
 ];
 
-export const placeOf = (c: Ctx) => c.data.place ?? (c.company.defaultPlace || "[Luogo]");
+export const placeOf = (c: Ctx) => c.data.place ?? (c.company.defaultPlace || tr("[Luogo]"));
 
-export const party = (c: Ctx, label = "Spett.le"): JSONContent => ({ type: "party", attrs: { ...SAMPLE_PARTY, label, ...c.data.party } });
+export const party = (c: Ctx, label = tr("Spett.le")): JSONContent => ({ type: "party", attrs: { ...SAMPLE_PARTY, label, ...c.data.party } });
 export const items = (c: Ctx): JSONContent => ({ type: "itemsTable", attrs: { items: c.data.items ?? SAMPLE_ITEMS } });
-export const payment = (c: Ctx, terms = "Pagamento tramite bonifico bancario a 30 giorni data fattura."): JSONContent => ({ type: "paymentInfo", attrs: { terms: c.data.terms ?? terms } });
+export const payment = (c: Ctx, terms = tr("Pagamento tramite bonifico bancario a 30 giorni data fattura.")): JSONContent => ({ type: "paymentInfo", attrs: { terms: c.data.terms ?? terms } });
 export const signature = (c: Ctx, labels: string[], withPlace = true): JSONContent => ({
   type: "signatureBlock",
   attrs: { labels: c.data.labels ?? labels, place: withPlace ? placeOf(c) : "", date: withPlace ? (c.data.date ?? today()) : "" } satisfies SignatureAttrs,
 });
-export const clause = (n: number, title: string, ...body: string[]): JSONContent[] => [h(3, `Art. ${n} – ${title}`), ...body.map((s) => p(s))];
+export const clause = (n: number, title: string, ...body: string[]): JSONContent[] => [h(3, tr("Art. {n} – {title}", { n, title })), ...body.map((s) => p(s))];
 
 export const BLOCKS: Block[] = [
-  { id: "intestazione", label: "Intestazione aziendale", description: "I dati della tua azienda, presi dalle Impostazioni.", build: () => [{ type: "companyHeader" }] },
-  { id: "cliente", label: "Dati cliente", description: "Destinatario con ragione sociale, indirizzo, P.IVA ed email.", build: (c) => [party(c, c.data.party?.label)] },
-  { id: "voci", label: "Tabella voci con totali", description: "Righe con quantità, prezzo e IVA; imponibile, IVA e totale calcolati.", build: (c) => [items(c)] },
-  { id: "pagamento", label: "Condizioni di pagamento", description: "Termini di pagamento e IBAN dalle Impostazioni.", build: (c) => [payment(c)] },
-  { id: "firma", label: "Firma", description: "Una o due righe per la firma, con luogo e data.", build: (c) => [signature(c, ["Il cliente", "Il fornitore"])] },
-  { id: "luogo-data", label: "Luogo e data", description: "Una riga con luogo e data di oggi.", build: (c) => [pAlign("right", `${placeOf(c)}, ${c.data.date ?? today()}`)] },
+  { id: "intestazione", label: tr("Intestazione aziendale"), description: tr("I dati della tua azienda, presi dalle Impostazioni."), build: () => [{ type: "companyHeader" }] },
+  { id: "cliente", label: tr("Dati cliente"), description: tr("Destinatario con ragione sociale, indirizzo, P.IVA ed email."), build: (c) => [party(c, c.data.party?.label)] },
+  { id: "voci", label: tr("Tabella voci con totali"), description: tr("Righe con quantità, prezzo e IVA; imponibile, IVA e totale calcolati."), build: (c) => [items(c)] },
+  { id: "pagamento", label: tr("Condizioni di pagamento"), description: tr("Termini di pagamento e IBAN dalle Impostazioni."), build: (c) => [payment(c)] },
+  { id: "firma", label: tr("Firma"), description: tr("Una o due righe per la firma, con luogo e data."), build: (c) => [signature(c, [tr("Il cliente"), tr("Il fornitore")])] },
+  { id: "luogo-data", label: tr("Luogo e data"), description: tr("Una riga con luogo e data di oggi."), build: (c) => [pAlign("right", `${placeOf(c)}, ${c.data.date ?? today()}`)] },
   {
     id: "clausola",
-    label: "Clausola",
-    description: "Articolo numerato con titolo e testo.",
-    build: (c) => clause(c.data.number ?? 1, c.data.title ?? "[Titolo della clausola]", c.data.text ?? "[Testo della clausola.]"),
+    label: tr("Clausola"),
+    description: tr("Articolo numerato con titolo e testo."),
+    build: (c) => clause(c.data.number ?? 1, c.data.title ?? tr("[Titolo della clausola]"), c.data.text ?? tr("[Testo della clausola.]")),
   },
-  { id: "note", label: "Note", description: "Un titolo e uno spazio per le note.", build: (c) => [h(3, c.data.title ?? "Note"), p(c.data.text ?? "[Eventuali note, tempi di consegna, esclusioni.]")] },
+  { id: "note", label: tr("Note"), description: tr("Un titolo e uno spazio per le note."), build: (c) => [h(3, c.data.title ?? tr("Note")), p(c.data.text ?? tr("[Eventuali note, tempi di consegna, esclusioni.]"))] },
   {
     id: "validita",
-    label: "Validità dell'offerta",
-    description: "Per quanti giorni vale l'offerta.",
+    label: tr("Validità dell'offerta"),
+    description: tr("Per quanti giorni vale l'offerta."),
     build: (c) => [
-      h(3, "Validità dell'offerta"),
-      p("La presente offerta è valida ", t(`${c.data.days ?? 30} giorni`, "bold"), " dalla data di emissione. I prezzi sono espressi in euro, IVA esclusa salvo diversa indicazione."),
+      h(3, tr("Validità dell'offerta")),
+      p(tr("La presente offerta è valida "), t(tr("{days} giorni", { days: c.data.days ?? 30 }), "bold"), tr(" dalla data di emissione. I prezzi sono espressi in euro, IVA esclusa salvo diversa indicazione.")),
     ],
   },
 ];

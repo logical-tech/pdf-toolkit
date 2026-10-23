@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { pickFiles } from "@/lib/io";
 import { imageToPngDataUrl } from "@/lib/tools";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const STORE_KEY = "pdf-toolkit:signatures";
 const INKS = ["#111111", "#1d3fa8"];
@@ -71,7 +72,7 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Firma</DialogTitle>
+          <DialogTitle>{t("Firma")}</DialogTitle>
         </DialogHeader>
 
         {saved.length > 0 && (
@@ -79,10 +80,10 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
             {saved.map((s) => (
               <div key={s} className="group relative">
                 <button className="flex h-16 w-full items-center justify-center rounded-md border bg-white p-1.5 hover:border-foreground/40" onClick={() => pick(s, false)}>
-                  <img src={s} alt="Firma salvata" className="max-h-full max-w-full" />
+                  <img src={s} alt={t("Firma salvata")} className="max-h-full max-w-full" />
                 </button>
                 <button
-                  aria-label="Rimuovi firma salvata"
+                  aria-label={t("Rimuovi firma salvata")}
                   className="absolute -top-1.5 -right-1.5 hidden size-5 items-center justify-center rounded-full border bg-background group-hover:flex"
                   onClick={() => forget(s)}
                 >
@@ -95,8 +96,8 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
 
         <Tabs defaultValue="draw">
           <TabsList>
-            <TabsTrigger value="draw">Disegna</TabsTrigger>
-            <TabsTrigger value="upload">Carica immagine</TabsTrigger>
+            <TabsTrigger value="draw">{t("Disegna")}</TabsTrigger>
+            <TabsTrigger value="upload">{t("Carica immagine")}</TabsTrigger>
           </TabsList>
           <TabsContent value="draw" className="space-y-3">
             <DrawPad ink={ink} padRef={padRef} canvasRef={canvasRef} />
@@ -104,14 +105,14 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
               {INKS.map((c) => (
                 <button
                   key={c}
-                  aria-label={`Inchiostro ${c}`}
+                  aria-label={t("Inchiostro {color}", { color: c })}
                   className={cn("size-6 rounded-full ring-1 ring-border ring-offset-2 ring-offset-background", ink === c && "ring-2 ring-foreground/60")}
                   style={{ background: c }}
                   onClick={() => setInk(c)}
                 />
               ))}
               <Button variant="ghost" size="sm" className="ml-auto" onClick={() => padRef.current?.clear()}>
-                <Trash2 /> Cancella
+                <Trash2 /> {t("Cancella")}
               </Button>
             </div>
             <DialogFooter>
@@ -122,7 +123,7 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
                   if (src) pick(src, true);
                 }}
               >
-                Usa firma
+                {t("Usa firma")}
               </Button>
             </DialogFooter>
           </TabsContent>
@@ -135,7 +136,7 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
               }}
             >
               <Upload className="size-5" />
-              Scegli un'immagine (PNG con sfondo trasparente consigliato)
+              {t("Scegli un'immagine (PNG con sfondo trasparente consigliato)")}
             </button>
           </TabsContent>
         </Tabs>

@@ -14,6 +14,7 @@ import { OptionGroup, OptionRow } from "@/components/Chrome";
 import { isBlankPage } from "@/lib/tools";
 import { everyN, parseRanges } from "@/lib/tools";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 const THUMB_W = 200;
 
@@ -144,35 +145,35 @@ export function PagesView({ sources, pages, onPages, onAddPdf, onAddImages, onEx
       </div>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-4 flex justify-center">
-        <FloatBar role="toolbar" aria-label="Azioni sulle pagine">
+        <FloatBar role="toolbar" aria-label={t("Azioni sulle pagine")}>
           <button
             onClick={() => setSelected(new Set(all ? [] : pages.map((p) => p.id)))}
             className="inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
           >
             <SquareDashedMousePointer />
-            <TextMorph>{ids.length ? `${ids.length} di ${pages.length}` : all ? "Deseleziona" : "Seleziona tutte"}</TextMorph>
+            <TextMorph>{ids.length ? t("{n} di {total}", { n: ids.length, total: pages.length }) : all ? t("Deseleziona") : t("Seleziona tutte")}</TextMorph>
           </button>
           <BarDivider />
-          <ToolButton side="top" label="Ruota a sinistra" disabled={!ids.length} onClick={() => rotate(-90)}>
+          <ToolButton side="top" label={t("Ruota a sinistra")} disabled={!ids.length} onClick={() => rotate(-90)}>
             <RotateCcw />
           </ToolButton>
-          <ToolButton side="top" label="Ruota a destra" disabled={!ids.length} onClick={() => rotate(90)}>
+          <ToolButton side="top" label={t("Ruota a destra")} disabled={!ids.length} onClick={() => rotate(90)}>
             <RotateCw />
           </ToolButton>
-          <ToolButton side="top" label="Estrai in un nuovo PDF" disabled={!ids.length} onClick={() => onExtract(ids)}>
+          <ToolButton side="top" label={t("Estrai in un nuovo PDF")} disabled={!ids.length} onClick={() => onExtract(ids)}>
             <FileOutput />
           </ToolButton>
-          <ToolButton side="top" label="Salva come immagini PNG" disabled={!ids.length} onClick={() => onExportImages(ids)}>
+          <ToolButton side="top" label={t("Salva come immagini PNG")} disabled={!ids.length} onClick={() => onExportImages(ids)}>
             <FileImage />
           </ToolButton>
-          <ToolButton side="top" label="Elimina pagine" disabled={!ids.length || ids.length === pages.length} onClick={remove} className="hover:bg-destructive/10 hover:text-destructive">
+          <ToolButton side="top" label={t("Elimina pagine")} disabled={!ids.length || ids.length === pages.length} onClick={remove} className="hover:bg-destructive/10 hover:text-destructive">
             <Trash2 />
           </ToolButton>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <button
-                  aria-label="Altre azioni sulle pagine"
+                  aria-label={t("Altre azioni sulle pagine")}
                   className="inline-flex size-8 items-center justify-center rounded-[10px] text-foreground/80 outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
                 />
               }
@@ -181,37 +182,37 @@ export function PagesView({ sources, pages, onPages, onAddPdf, onAddImages, onEx
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" sideOffset={10} className="min-w-60">
               <DropdownMenuItem onClick={() => onBlank(ids.length ? ids[ids.length - 1] : null)}>
-                <StickyNote /> Inserisci pagina bianca
+                <StickyNote /> {t("Inserisci pagina bianca")}
               </DropdownMenuItem>
               <DropdownMenuItem disabled={!ids.length} onClick={() => onDuplicate(ids)}>
-                <Copy /> Duplica
+                <Copy /> {t("Duplica")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onPages([...pages].reverse())}>
-                <ArrowDownUp /> Inverti l'ordine
+                <ArrowDownUp /> {t("Inverti l'ordine")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setCropOpen(true)}>
-                <CropIcon /> Ritaglia i margini…
+                <CropIcon /> {t("Ritaglia i margini…")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled={scanning} onClick={selectBlank}>
-                <FileText /> Seleziona le pagine bianche
+                <FileText /> {t("Seleziona le pagine bianche")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setCleanOpen(true)}>
-                <Eraser /> Pulisci scansioni…
+                <Eraser /> {t("Pulisci scansioni…")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onOcr(targets)}>
-                <ScanText /> Riconosci il testo (OCR)
+                <ScanText /> {t("Riconosci il testo (OCR)")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <BarDivider />
-          <ToolButton side="top" label="Dividi in più file" onClick={() => setSplitOpen(true)}>
+          <ToolButton side="top" label={t("Dividi in più file")} onClick={() => setSplitOpen(true)}>
             <Scissors />
           </ToolButton>
-          <ToolButton side="top" label="Aggiungi PDF" onClick={onAddPdf}>
+          <ToolButton side="top" label={t("Aggiungi PDF")} onClick={onAddPdf}>
             <FilePlus2 />
           </ToolButton>
-          <ToolButton side="top" label="Aggiungi immagini" onClick={onAddImages}>
+          <ToolButton side="top" label={t("Aggiungi immagini")} onClick={onAddImages}>
             <Images />
           </ToolButton>
         </FloatBar>
@@ -240,27 +241,27 @@ function SplitDialog({ open, onOpenChange, total, onSplit }: { open: boolean; on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Dividi PDF</DialogTitle>
+          <DialogTitle>{t("Dividi PDF")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 text-sm">
           <label className="flex items-center gap-2">
             <input type="radio" checked={mode === "every"} onChange={() => setMode("every")} />
-            Un file ogni
+            {t("Un file ogni")}
             <Input type="number" min={1} max={total} className="h-8 w-16" value={n} onChange={(e) => setN(Number(e.target.value) || 1)} onFocus={() => setMode("every")} />
-            pagine
+            {t("pagine")}
           </label>
           <label className="flex items-center gap-2">
             <input type="radio" checked={mode === "ranges"} onChange={() => setMode("ranges")} />
-            Intervalli
-            <Input className="h-8 flex-1" placeholder="es. 1-3, 4, 5-" value={ranges} onChange={(e) => setRanges(e.target.value)} onFocus={() => setMode("ranges")} />
+            {t("Intervalli")}
+            <Input className="h-8 flex-1" placeholder={t("es. 1-3, 4, 5-")} value={ranges} onChange={(e) => setRanges(e.target.value)} onFocus={() => setMode("ranges")} />
           </label>
           <Label className={cn("font-normal", groups ? "text-muted-foreground" : "text-destructive")}>
-            {groups ? `Verranno creati ${groups.length} file.` : `Intervalli non validi (pagine da 1 a ${total}).`}
+            {groups ? t("Verranno creati {n} file.", { n: groups.length }) : t("Intervalli non validi (pagine da 1 a {total}).", { total })}
           </Label>
         </div>
         <DialogFooter>
           <Button disabled={!groups} onClick={() => (onSplit(groups!), onOpenChange(false))}>
-            Dividi
+            {t("Dividi")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -272,18 +273,18 @@ function CropDialog({ open, onOpenChange, count, initial, onApply }: { open: boo
   const toMm = (c: Crop) => ({ top: Math.round(c.top / MM), right: Math.round(c.right / MM), bottom: Math.round(c.bottom / MM), left: Math.round(c.left / MM) });
   const [mm, setMm] = useState(toMm(initial));
   const sides = [
-    ["top", "Sopra"],
-    ["bottom", "Sotto"],
-    ["left", "Sinistra"],
-    ["right", "Destra"],
+    ["top", t("Sopra")],
+    ["bottom", t("Sotto")],
+    ["left", t("Sinistra")],
+    ["right", t("Destra")],
   ] as const;
   return (
     <Dialog open={open} onOpenChange={(o) => (o && setMm(toMm(initial)), onOpenChange(o))}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Ritaglia i margini</DialogTitle>
+          <DialogTitle>{t("Ritaglia i margini")}</DialogTitle>
         </DialogHeader>
-        <p className="-mt-2 text-[13px] text-muted-foreground">{count === 1 ? "Si applica alla pagina selezionata." : `Si applica a ${count} pagine.`}</p>
+        <p className="-mt-2 text-[13px] text-muted-foreground">{count === 1 ? t("Si applica alla pagina selezionata.") : t("Si applica a {n} pagine.", { n: count })}</p>
         <OptionGroup>
           {sides.map(([key, label]) => (
             <OptionRow key={key} label={label} htmlFor={`crop-${key}`}>
@@ -296,10 +297,10 @@ function CropDialog({ open, onOpenChange, count, initial, onApply }: { open: boo
         </OptionGroup>
         <DialogFooter>
           <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={() => (onApply(undefined), onOpenChange(false))}>
-            Togli il ritaglio
+            {t("Togli il ritaglio")}
           </Button>
           <Button className="h-9 rounded-[10px] px-4" onClick={() => (onApply({ top: mm.top * MM, right: mm.right * MM, bottom: mm.bottom * MM, left: mm.left * MM }), onOpenChange(false))}>
-            Ritaglia
+            {t("Ritaglia")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -310,18 +311,20 @@ function CropDialog({ open, onOpenChange, count, initial, onApply }: { open: boo
 function CleanDialog({ open, onOpenChange, count, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; count: number; onApply: (o: CleanOptions) => void }) {
   const [o, setO] = useState<CleanOptions>({ deskew: true, grayscale: false, whiten: true });
   const rows = [
-    ["deskew", "Raddrizza", "Corregge le pagine scansionate storte"],
-    ["whiten", "Sbianca lo sfondo", "Carta grigia o ingiallita diventa bianca"],
-    ["grayscale", "Scala di grigi", "Toglie il colore"],
+    ["deskew", t("Raddrizza"), t("Corregge le pagine scansionate storte")],
+    ["whiten", t("Sbianca lo sfondo"), t("Carta grigia o ingiallita diventa bianca")],
+    ["grayscale", t("Scala di grigi"), t("Toglie il colore")],
   ] as const;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Pulisci scansioni</DialogTitle>
+          <DialogTitle>{t("Pulisci scansioni")}</DialogTitle>
         </DialogHeader>
         <p className="-mt-2 text-[13px] text-muted-foreground text-pretty">
-          {count === 1 ? "La pagina selezionata diventa un'immagine ripulita" : `${count} pagine diventano immagini ripulite`}: il testo non sarà più selezionabile finché non usi l'OCR.
+          {count === 1
+            ? t("La pagina selezionata diventa un'immagine ripulita: il testo non sarà più selezionabile finché non usi l'OCR.")
+            : t("{n} pagine diventano immagini ripulite: il testo non sarà più selezionabile finché non usi l'OCR.", { n: count })}
         </p>
         <OptionGroup>
           {rows.map(([key, label, hint]) => (
@@ -332,10 +335,10 @@ function CleanDialog({ open, onOpenChange, count, onApply }: { open: boolean; on
         </OptionGroup>
         <DialogFooter>
           <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={() => onOpenChange(false)}>
-            Annulla
+            {t("Annulla")}
           </Button>
           <Button className="h-9 rounded-[10px] px-4" disabled={!o.deskew && !o.grayscale && !o.whiten} onClick={() => (onApply(o), onOpenChange(false))}>
-            Pulisci
+            {t("Pulisci")}
           </Button>
         </DialogFooter>
       </DialogContent>

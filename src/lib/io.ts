@@ -1,6 +1,7 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { join } from "@tauri-apps/api/path";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
+import { t } from "@/lib/i18n";
 import { exists, readFile, writeFile } from "@tauri-apps/plugin-fs";
 
 // `path` is only known in the desktop app; files from the browser or a drop have none.
@@ -8,8 +9,8 @@ export type OpenedFile = { name: string; bytes: Uint8Array; path?: string };
 export type OutFile = { name: string; bytes: Uint8Array };
 
 const PDF_FILTER = [{ name: "PDF", extensions: ["pdf"] }];
-const OPEN_FILTER = [{ name: "PDF o P7M firmato", extensions: ["pdf", "p7m"] }];
-const OPEN_ANY_FILTER = [{ name: "PDF, P7M o documento", extensions: ["pdf", "p7m", "lptk"] }];
+const OPEN_FILTER = [{ name: t("PDF o P7M firmato"), extensions: ["pdf", "p7m"] }];
+const OPEN_ANY_FILTER = [{ name: t("PDF, P7M o documento"), extensions: ["pdf", "p7m", "lptk"] }];
 
 // In the browser (vite dev without Tauri) fall back to <input type=file> and downloads.
 // `documents` also accepts the writer's .lptk files (the main "Apri").
@@ -46,7 +47,7 @@ export async function saveFiles(files: OutFile[]): Promise<boolean> {
     if (!dir) return false;
     const paths = await Promise.all(files.map((f) => join(dir, f.name)));
     const clashes = (await Promise.all(paths.map((p) => exists(p)))).filter(Boolean).length;
-    if (clashes && !(await ask(`${clashes} file con lo stesso nome esistono già in questa cartella. Sovrascriverli?`, { kind: "warning" }))) return false;
+    if (clashes && !(await ask(t("{count} file con lo stesso nome esistono già in questa cartella. Sovrascriverli?", { count: clashes }), { kind: "warning" }))) return false;
     for (const [i, f] of files.entries()) await writeFile(paths[i], f.bytes);
     return true;
   }

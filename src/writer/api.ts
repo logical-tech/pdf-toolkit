@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/react";
 import { MarkdownManager } from "@tiptap/markdown";
+import { t } from "../lib/i18n.ts";
 import { BLOCKS, buildBlock, type BlockData } from "./blocks";
 import { loadCompany } from "./company";
 import { extensions } from "./extensions";
@@ -40,7 +41,7 @@ const catalog = (list: CatalogEntry[]) => list.map(({ id, label, description }) 
 function nextArticle(content: JSONContent | null) {
   let n = 0;
   const walk = (node: JSONContent) => {
-    const m = node.type === "heading" ? /^Art\.\s*(\d+)/.exec(node.content?.map((c) => c.text ?? "").join("") ?? "") : null;
+    const m = node.type === "heading" ? /^\D{1,12}?(\d+)\s–/.exec(node.content?.map((c) => c.text ?? "").join("") ?? "") : null;
     if (m) n = Math.max(n, Number(m[1]));
     node.content?.forEach(walk);
   };
@@ -76,7 +77,7 @@ export function createWriterApi({ editor, file, replace }: Deps): WriterHandle {
     setContent(content) {
       const next = toJSON(content);
       const f = current();
-      replace(next.file ?? (f ? { ...f, content: next.content } : newFile("Documento senza titolo", next.content)));
+      replace(next.file ?? (f ? { ...f, content: next.content } : newFile(t("Documento senza titolo"), next.content)));
     },
     insertBlock(blockId, data = {}, at = "cursor") {
       const nodes = buildBlock(blockId, loadCompany(), { number: nextArticle(getJSON()), ...data });
@@ -87,7 +88,7 @@ export function createWriterApi({ editor, file, replace }: Deps): WriterHandle {
         return;
       }
       const f = current();
-      replace(f ? { ...f, content: { ...f.content, content: [...(f.content.content ?? []), ...nodes] } } : newFile("Documento senza titolo", doc(nodes)));
+      replace(f ? { ...f, content: { ...f.content, content: [...(f.content.content ?? []), ...nodes] } } : newFile(t("Documento senza titolo"), doc(nodes)));
     },
     applyTemplate(templateId, data) {
       const { title, content } = buildTemplate(templateId, loadCompany(), data);

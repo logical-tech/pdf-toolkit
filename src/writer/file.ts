@@ -1,12 +1,13 @@
 import { isTauri } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readFile, writeFile } from "@tauri-apps/plugin-fs";
+import { t } from "@/lib/i18n";
 import { pickFiles } from "@/lib/io";
 import { parse, serialize, type LptkFile } from "./lptk";
 
 export { newFile, parse, serialize, type LptkFile } from "./lptk";
 
-const FILTER = [{ name: "Documento PDF Toolkit", extensions: ["lptk"] }];
+const FILTER = [{ name: t("Documento PDF Toolkit"), extensions: ["lptk"] }];
 
 /** Where a document lives: `path` is "" in the browser (downloads), so "Salva" there always behaves like "Salva come". */
 export type Saved = { path: string; name: string };

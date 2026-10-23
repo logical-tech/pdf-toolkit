@@ -2,6 +2,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/menu";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Recent } from "@/lib/desktop";
+import { t } from "@/lib/i18n";
 
 export type MenuActions = {
   newDocument: () => void;
@@ -37,84 +38,84 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
   const app = await Submenu.new({
     text: "PDF Toolkit",
     items: [
-      await PredefinedMenuItem.new({ item: { About: { name: "PDF Toolkit" } }, text: "Informazioni su PDF Toolkit" }),
+      await PredefinedMenuItem.new({ item: { About: { name: "PDF Toolkit" } }, text: t("Informazioni su PDF Toolkit") }),
       await sep(),
-      await item("Impostazioni…", (a) => a.settings(), "CmdOrCtrl+,"),
+      await item(t("Impostazioni…"), (a) => a.settings(), "CmdOrCtrl+,"),
       await sep(),
-      await PredefinedMenuItem.new({ item: "Services", text: "Servizi" }),
+      await PredefinedMenuItem.new({ item: "Services", text: t("Servizi") }),
       await sep(),
-      await PredefinedMenuItem.new({ item: "Hide", text: "Nascondi PDF Toolkit" }),
-      await PredefinedMenuItem.new({ item: "HideOthers", text: "Nascondi altre" }),
-      await PredefinedMenuItem.new({ item: "ShowAll", text: "Mostra tutte" }),
+      await PredefinedMenuItem.new({ item: "Hide", text: t("Nascondi PDF Toolkit") }),
+      await PredefinedMenuItem.new({ item: "HideOthers", text: t("Nascondi altre") }),
+      await PredefinedMenuItem.new({ item: "ShowAll", text: t("Mostra tutte") }),
       await sep(),
       // Not the predefined Quit: that skips the unsaved-changes prompt on window close.
-      await item("Esci da PDF Toolkit", () => void getCurrentWindow().close(), "CmdOrCtrl+Q"),
+      await item(t("Esci da PDF Toolkit"), () => void getCurrentWindow().close(), "CmdOrCtrl+Q"),
     ],
   });
 
   const recent = await Submenu.new({
-    text: "Apri recenti",
+    text: t("Apri recenti"),
     enabled: state.recent.length > 0,
-    items: [...(await Promise.all(state.recent.map((r) => item(r.name, (a) => a.openRecent(r.path))))), await sep(), await item("Cancella elenco", (a) => a.clearRecent())],
+    items: [...(await Promise.all(state.recent.map((r) => item(r.name, (a) => a.openRecent(r.path))))), await sep(), await item(t("Cancella elenco"), (a) => a.clearRecent())],
   });
 
   const file = await Submenu.new({
-    text: "File",
+    text: t("File"),
     items: [
-      await item("Nuovo documento", (a) => a.newDocument(), "CmdOrCtrl+N"),
-      await item("Apri…", (a) => a.open(), "CmdOrCtrl+O"),
+      await item(t("Nuovo documento"), (a) => a.newDocument(), "CmdOrCtrl+N"),
+      await item(t("Apri…"), (a) => a.open(), "CmdOrCtrl+O"),
       recent,
       await sep(),
-      await item("Aggiungi PDF…", (a) => a.addPdf(), undefined, doc),
-      await item(doc ? "Aggiungi immagini…" : "Crea PDF da immagini…", (a) => a.addImages()),
-      await item("Confronta con un altro PDF…", (a) => a.compare(), undefined, doc),
+      await item(t("Aggiungi PDF…"), (a) => a.addPdf(), undefined, doc),
+      await item(doc ? t("Aggiungi immagini…") : t("Crea PDF da immagini…"), (a) => a.addImages()),
+      await item(t("Confronta con un altro PDF…"), (a) => a.compare(), undefined, doc),
       await sep(),
-      await item("Salva", (a) => a.save(), "CmdOrCtrl+S", state.canSave),
-      await item("Salva come…", (a) => a.saveAs(), "CmdOrCtrl+Shift+S", state.canSave),
+      await item(t("Salva"), (a) => a.save(), "CmdOrCtrl+S", state.canSave),
+      await item(t("Salva come…"), (a) => a.saveAs(), "CmdOrCtrl+Shift+S", state.canSave),
       await sep(),
-      await item("Stampa…", (a) => a.print(), "CmdOrCtrl+P", doc),
+      await item(t("Stampa…"), (a) => a.print(), "CmdOrCtrl+P", doc),
       await sep(),
-      await PredefinedMenuItem.new({ item: "CloseWindow", text: "Chiudi finestra" }),
+      await PredefinedMenuItem.new({ item: "CloseWindow", text: t("Chiudi finestra") }),
     ],
   });
 
   // Native Undo/Redo so text fields keep their own history; outside a field the page's keydown handler
   // takes ⌘Z first (WebKit offers key equivalents to the page before the menu) and runs the app's undo.
   const edit = await Submenu.new({
-    text: "Modifica",
+    text: t("Modifica"),
     items: [
-      await PredefinedMenuItem.new({ item: "Undo", text: "Annulla" }),
-      await PredefinedMenuItem.new({ item: "Redo", text: "Ripeti" }),
+      await PredefinedMenuItem.new({ item: "Undo", text: t("Annulla") }),
+      await PredefinedMenuItem.new({ item: "Redo", text: t("Ripeti") }),
       await sep(),
-      await PredefinedMenuItem.new({ item: "Cut", text: "Taglia" }),
-      await PredefinedMenuItem.new({ item: "Copy", text: "Copia" }),
-      await PredefinedMenuItem.new({ item: "Paste", text: "Incolla" }),
-      await PredefinedMenuItem.new({ item: "SelectAll", text: "Seleziona tutto" }),
+      await PredefinedMenuItem.new({ item: "Cut", text: t("Taglia") }),
+      await PredefinedMenuItem.new({ item: "Copy", text: t("Copia") }),
+      await PredefinedMenuItem.new({ item: "Paste", text: t("Incolla") }),
+      await PredefinedMenuItem.new({ item: "SelectAll", text: t("Seleziona tutto") }),
       await sep(),
-      await item("Trova…", (a) => a.find(), "CmdOrCtrl+F", doc),
+      await item(t("Trova…"), (a) => a.find(), "CmdOrCtrl+F", doc),
     ],
   });
 
   const view = await Submenu.new({
-    text: "Vista",
+    text: t("Vista"),
     items: [
-      await item("Modifica", (a) => a.view("editor"), "CmdOrCtrl+1", doc),
-      await item("Pagine", (a) => a.view("pages"), "CmdOrCtrl+2", doc),
+      await item(t("Modifica"), (a) => a.view("editor"), "CmdOrCtrl+1", doc),
+      await item(t("Pagine"), (a) => a.view("pages"), "CmdOrCtrl+2", doc),
       await sep(),
-      await item("Indice e allegati", (a) => a.togglePanel(), "CmdOrCtrl+Alt+1", doc),
-      await item("Timbri", (a) => a.toggleStamps(), "CmdOrCtrl+Alt+2", doc),
+      await item(t("Indice e allegati"), (a) => a.togglePanel(), "CmdOrCtrl+Alt+1", doc),
+      await item(t("Timbri"), (a) => a.toggleStamps(), "CmdOrCtrl+Alt+2", doc),
       await sep(),
-      await item("Ingrandisci", (a) => a.zoomIn(), "CmdOrCtrl+=", doc),
-      await item("Riduci", (a) => a.zoomOut(), "CmdOrCtrl+-", doc),
-      await item("Adatta alla larghezza", (a) => a.fit(), "CmdOrCtrl+0", doc),
+      await item(t("Ingrandisci"), (a) => a.zoomIn(), "CmdOrCtrl+=", doc),
+      await item(t("Riduci"), (a) => a.zoomOut(), "CmdOrCtrl+-", doc),
+      await item(t("Adatta alla larghezza"), (a) => a.fit(), "CmdOrCtrl+0", doc),
       await sep(),
-      await PredefinedMenuItem.new({ item: "Fullscreen", text: "Schermo intero" }),
+      await PredefinedMenuItem.new({ item: "Fullscreen", text: t("Schermo intero") }),
     ],
   });
 
   const windowMenu = await Submenu.new({
-    text: "Finestra",
-    items: [await PredefinedMenuItem.new({ item: "Minimize", text: "Contrai" }), await PredefinedMenuItem.new({ item: "Maximize", text: "Ridimensiona" })],
+    text: t("Finestra"),
+    items: [await PredefinedMenuItem.new({ item: "Minimize", text: t("Contrai") }), await PredefinedMenuItem.new({ item: "Maximize", text: t("Ridimensiona") })],
   });
 
   const menu = await Menu.new({ items: [app, file, edit, view, windowMenu] });

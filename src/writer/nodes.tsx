@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Node, mergeAttributes, type Attribute } from "@tiptap/react";
 import { NodeViewWrapper, ReactNodeViewRenderer, type NodeViewProps } from "@tiptap/react";
 import { Plus, X } from "lucide-react";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { loadCompany, useCompany } from "./company";
 import { VAT_RATES, eur, lineTotal, num, parseNumber, totals, type CompanyData, type Item, type PartyAttrs, type SignatureAttrs } from "./model";
@@ -46,9 +47,9 @@ const companyText = (c: CompanyData) =>
 const partyText = (a: PartyAttrs) => [a.label, `**${a.name}**`, a.address, a.vat && `P.IVA / C.F. ${a.vat}`, a.email].filter(Boolean).join("  \n");
 
 function itemsText(items: Item[]) {
-  const t = totals(items);
+  const tot = totals(items);
   const rows = items.map((it) => `| ${it.description.replace(/\|/g, "\\|")} | ${num(it.qty)} | ${eur(it.price)} | ${it.vat}% | ${eur(lineTotal(it))} |`);
-  const sums = [`Imponibile: ${eur(t.net)}`, ...t.vat.map((v) => `IVA ${v.rate}% su ${eur(v.base)}: ${eur(v.tax)}`), `**Totale: ${eur(t.total)}**`];
+  const sums = [`Imponibile: ${eur(tot.net)}`, ...tot.vat.map((v) => `IVA ${v.rate}% su ${eur(v.base)}: ${eur(v.tax)}`), `**Totale: ${eur(tot.total)}**`];
   return ["| Descrizione | Q.tà | Prezzo unit. | IVA | Importo |", "| --- | ---: | ---: | ---: | ---: |", ...rows, "", sums.join("  \n")].join("\n");
 }
 
@@ -132,16 +133,16 @@ function CompanyHeaderView({ selected, editor }: NodeViewProps) {
   const ids = [c.vat && `P.IVA ${c.vat}`, c.taxCode && c.taxCode !== c.vat && `C.F. ${c.taxCode}`].filter(Boolean).join("  ·  ");
   const contacts = [c.email, c.phone].filter(Boolean).join("  ·  ");
   return (
-    <Block selected={selected && editor.isEditable} label="Intestazione aziendale" className="mb-[18pt]">
+    <Block selected={selected && editor.isEditable} label={t("Intestazione aziendale")} className="mb-[18pt]">
       <div className="flex items-start justify-between gap-6 border-b-[0.5pt] border-[#cfcfd4] pb-[10pt]">
         <div className="min-w-0">
-          <div className="text-[13pt] font-bold">{c.name || <span className="text-black/35">[Ragione sociale]</span>}</div>
+          <div className="text-[13pt] font-bold">{c.name || <span className="text-black/35">{t("[Ragione sociale]")}</span>}</div>
           <div className="mt-[3pt] text-[9pt] leading-[1.35] text-[#6b6b70]">
-            <div>{c.address || "[Indirizzo]"}</div>
+            <div>{c.address || t("[Indirizzo]")}</div>
             {ids && <div>{ids}</div>}
             {contacts && <div>{contacts}</div>}
           </div>
-          {!c.name && <div className="mt-1 font-sans text-[12px] text-[oklch(0.46_0.2_266)]">Completa i dati aziendali nelle Impostazioni.</div>}
+          {!c.name && <div className="mt-1 font-sans text-[12px] text-[oklch(0.46_0.2_266)]">{t("Completa i dati aziendali nelle Impostazioni.")}</div>}
         </div>
         {c.logo && <img src={c.logo} alt="" className="max-h-[48pt] max-w-[130pt] object-contain" />}
       </div>
@@ -154,15 +155,15 @@ function PartyView({ node, updateAttributes, selected, editor }: NodeViewProps) 
   const ro = !editor.isEditable;
   const set = (k: keyof PartyAttrs) => (v: string) => updateAttributes({ [k]: v });
   return (
-    <Block selected={selected && editor.isEditable} label="Dati cliente" className="mb-[18pt] ml-[50%]">
-      <Field value={a.label} onChange={set("label")} placeholder="Spett.le" readOnly={ro} className="text-[9pt] text-[#6b6b70]" />
-      <Field value={a.name} onChange={set("name")} placeholder="Ragione sociale" readOnly={ro} className="font-bold" />
-      <Field value={a.address} onChange={set("address")} placeholder="Indirizzo" readOnly={ro} />
+    <Block selected={selected && editor.isEditable} label={t("Dati cliente")} className="mb-[18pt] ml-[50%]">
+      <Field value={a.label} onChange={set("label")} placeholder={t("Spett.le")} readOnly={ro} className="text-[9pt] text-[#6b6b70]" />
+      <Field value={a.name} onChange={set("name")} placeholder={t("Ragione sociale")} readOnly={ro} className="font-bold" />
+      <Field value={a.address} onChange={set("address")} placeholder={t("Indirizzo")} readOnly={ro} />
       <div className="flex items-baseline">
-        <span className="shrink-0 pr-1.5">P.IVA / C.F.</span>
+        <span className="shrink-0 pr-1.5">{t("P.IVA / C.F.")}</span>
         <Field value={a.vat} onChange={set("vat")} placeholder="IT01234567890" readOnly={ro} />
       </div>
-      <Field value={a.email} onChange={set("email")} placeholder="email o PEC" readOnly={ro} />
+      <Field value={a.email} onChange={set("email")} placeholder={t("email o PEC")} readOnly={ro} />
     </Block>
   );
 }
@@ -170,11 +171,11 @@ function PartyView({ node, updateAttributes, selected, editor }: NodeViewProps) 
 function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewProps) {
   const items = node.attrs.items as Item[];
   const ro = !editor.isEditable;
-  const t = totals(items);
+  const tot = totals(items);
   const setItem = (i: number, patch: Partial<Item>) => updateAttributes({ items: items.map((it, j) => (j === i ? { ...it, ...patch } : it)) });
   const head = "pb-[4pt] text-[9pt] font-normal text-[#6b6b70]";
   return (
-    <Block selected={selected && editor.isEditable} label="Tabella voci" className="mb-[14pt]">
+    <Block selected={selected && editor.isEditable} label={t("Tabella voci")} className="mb-[14pt]">
       <table className="w-full table-fixed border-collapse tabular-nums">
         <colgroup>
           <col />
@@ -185,18 +186,18 @@ function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewPr
         </colgroup>
         <thead>
           <tr className="border-b-[0.75pt] border-[#cfcfd4]">
-            <th className={cn(head, "text-left")}>Descrizione</th>
-            <th className={cn(head, "text-right")}>Q.tà</th>
-            <th className={cn(head, "text-right")}>Prezzo unit.</th>
-            <th className={cn(head, "text-right")}>IVA</th>
-            <th className={cn(head, "text-right")}>Importo</th>
+            <th className={cn(head, "text-left")}>{t("Descrizione")}</th>
+            <th className={cn(head, "text-right")}>{t("Q.tà")}</th>
+            <th className={cn(head, "text-right")}>{t("Prezzo unit.")}</th>
+            <th className={cn(head, "text-right")}>{t("IVA")}</th>
+            <th className={cn(head, "text-right")}>{t("Importo")}</th>
           </tr>
         </thead>
         <tbody>
           {items.map((it, i) => (
             <tr key={i} className="group/row border-b-[0.5pt] border-[#cfcfd4]">
               <td className="relative py-[4pt] pr-[6pt]">
-                <Field value={it.description} onChange={(description) => setItem(i, { description })} placeholder="Descrizione" readOnly={ro} />
+                <Field value={it.description} onChange={(description) => setItem(i, { description })} placeholder={t("Descrizione")} readOnly={ro} />
               </td>
               <td className="py-[4pt] pl-[6pt]">
                 <NumberField value={it.qty} onChange={(qty) => setItem(i, { qty })} readOnly={ro} />
@@ -209,7 +210,7 @@ function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewPr
                   `${it.vat}%`
                 ) : (
                   <select
-                    aria-label="Aliquota IVA"
+                    aria-label={t("Aliquota IVA")}
                     value={it.vat}
                     onChange={(e) => setItem(i, { vat: Number(e.target.value) })}
                     className={cn(fieldBase, "cursor-pointer appearance-none text-right")}
@@ -226,7 +227,7 @@ function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewPr
                 {eur(lineTotal(it))}
                 {!ro && (
                   <PaperButton
-                    label="Rimuovi voce"
+                    label={t("Rimuovi voce")}
                     onClick={() => updateAttributes({ items: items.filter((_, j) => j !== i) })}
                     className="absolute top-1/2 -right-8 size-6 -translate-y-1/2 justify-center px-0 opacity-0 transition-[opacity,background-color,color,scale] group-hover/row:opacity-100 focus-visible:opacity-100"
                   >
@@ -241,27 +242,27 @@ function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewPr
       <div className="mt-[6pt] flex items-start justify-between gap-6">
         <div>
           {!ro && (
-            <PaperButton label="Aggiungi voce" onClick={() => updateAttributes({ items: [...items, { description: "", qty: 1, price: 0, vat: items.at(-1)?.vat ?? 22 }] })}>
-              <Plus /> Aggiungi voce
+            <PaperButton label={t("Aggiungi voce")} onClick={() => updateAttributes({ items: [...items, { description: "", qty: 1, price: 0, vat: items.at(-1)?.vat ?? 22 }] })}>
+              <Plus /> {t("Aggiungi voce")}
             </PaperButton>
           )}
         </div>
         <dl className="w-[220pt] tabular-nums">
           <div className="flex justify-between py-[3pt]">
-            <dt className="text-[#6b6b70]">Imponibile</dt>
-            <dd>{eur(t.net)}</dd>
+            <dt className="text-[#6b6b70]">{t("Imponibile")}</dt>
+            <dd>{eur(tot.net)}</dd>
           </div>
-          {t.vat.map((v) => (
+          {tot.vat.map((v) => (
             <div key={v.rate} className="flex justify-between py-[3pt]">
               <dt className="text-[#6b6b70]">
-                IVA {v.rate}% su {eur(v.base)}
+                {t("IVA {rate}% su {base}", { rate: v.rate, base: eur(v.base) })}
               </dt>
               <dd>{eur(v.tax)}</dd>
             </div>
           ))}
           <div className="mt-[2pt] flex justify-between border-t-[0.75pt] border-[#cfcfd4] pt-[4pt] text-[12pt] font-bold">
-            <dt>Totale</dt>
-            <dd>{eur(t.total)}</dd>
+            <dt>{t("Totale")}</dt>
+            <dd>{eur(tot.total)}</dd>
           </div>
         </dl>
       </div>
@@ -272,13 +273,13 @@ function ItemsTableView({ node, updateAttributes, selected, editor }: NodeViewPr
 function PaymentInfoView({ node, updateAttributes, selected, editor }: NodeViewProps) {
   const c = useCompany();
   return (
-    <Block selected={selected && editor.isEditable} label="Condizioni di pagamento" className="mb-[12pt]">
-      <div className="mt-[4pt] mb-[4pt] text-[11.5pt] font-bold">Condizioni di pagamento</div>
-      <AutoTextarea value={node.attrs.terms as string} onChange={(terms) => updateAttributes({ terms })} readOnly={!editor.isEditable} placeholder="Termini di pagamento" />
+    <Block selected={selected && editor.isEditable} label={t("Condizioni di pagamento")} className="mb-[12pt]">
+      <div className="mt-[4pt] mb-[4pt] text-[11.5pt] font-bold">{t("Condizioni di pagamento")}</div>
+      <AutoTextarea value={node.attrs.terms as string} onChange={(terms) => updateAttributes({ terms })} readOnly={!editor.isEditable} placeholder={t("Termini di pagamento")} />
       <div className="mt-[3pt] tabular-nums">
         <span className="text-[#6b6b70]">IBAN&nbsp;&nbsp;</span>
         {c.iban || <span className="text-black/35">[IBAN]</span>}
-        {c.name && <span className="text-[#6b6b70]">&nbsp;&nbsp;·&nbsp;&nbsp;intestato a {c.name}</span>}
+        {c.name && <span className="text-[#6b6b70]">&nbsp;&nbsp;·&nbsp;&nbsp;{t("intestato a {name}", { name: c.name })}</span>}
       </div>
     </Block>
   );
@@ -301,23 +302,23 @@ function SignatureView({ node, updateAttributes, selected, editor }: NodeViewPro
   const setLabel = (i: number, v: string) => updateAttributes({ labels: labels.map((l, j) => (j === i ? v : l)) });
   const hasWhere = Boolean(a.place || a.date);
   return (
-    <Block selected={selected && editor.isEditable} label="Firma" className="group/sig mt-[14pt] mb-[10pt]">
+    <Block selected={selected && editor.isEditable} label={t("Firma")} className="group/sig mt-[14pt] mb-[10pt]">
       {(hasWhere || !ro) && (
         // Empty place and date stay out of the way (letters date themselves at the top) until hovered or focused.
         <div className={cn("mb-[14pt] flex items-baseline", !hasWhere && "opacity-0 transition-opacity duration-150 group-hover/sig:opacity-100 focus-within:opacity-100")}>
-          <span className="shrink-0 pr-[6pt] text-[#6b6b70]">Luogo e data</span>
-          <Field fit value={a.place} onChange={(place) => updateAttributes({ place })} placeholder="Luogo" readOnly={ro} />
+          <span className="shrink-0 pr-[6pt] text-[#6b6b70]">{t("Luogo e data")}</span>
+          <Field fit value={a.place} onChange={(place) => updateAttributes({ place })} placeholder={t("Luogo")} readOnly={ro} />
           <span>,&nbsp;</span>
-          <Field fit value={a.date} onChange={(date) => updateAttributes({ date })} placeholder="gg/mm/aaaa" readOnly={ro} className="tabular-nums" />
+          <Field fit value={a.date} onChange={(date) => updateAttributes({ date })} placeholder={t("gg/mm/aaaa")} readOnly={ro} className="tabular-nums" />
         </div>
       )}
       <div className={cn("flex", labels.length === 1 ? "justify-end" : "justify-between")}>
         {labels.map((l, i) => (
           <div key={i} className="relative w-[190pt]">
-            <Field value={l} onChange={(v) => setLabel(i, v)} placeholder="Firmatario" readOnly={ro} className="text-center text-[9pt] text-[#6b6b70]" />
+            <Field value={l} onChange={(v) => setLabel(i, v)} placeholder={t("Firmatario")} readOnly={ro} className="text-center text-[9pt] text-[#6b6b70]" />
             <div className="mt-[34pt] border-b-[0.75pt] border-[#8e8e93]" />
             {!ro && labels.length === 2 && (
-              <PaperButton label="Rimuovi firma" onClick={() => updateAttributes({ labels: labels.filter((_, j) => j !== i) })} className="absolute -top-0.5 -right-7 size-6 justify-center px-0 opacity-0 group-hover/sig:opacity-100 focus-visible:opacity-100">
+              <PaperButton label={t("Rimuovi firma")} onClick={() => updateAttributes({ labels: labels.filter((_, j) => j !== i) })} className="absolute -top-0.5 -right-7 size-6 justify-center px-0 opacity-0 group-hover/sig:opacity-100 focus-visible:opacity-100">
                 <X />
               </PaperButton>
             )}
@@ -325,8 +326,8 @@ function SignatureView({ node, updateAttributes, selected, editor }: NodeViewPro
         ))}
       </div>
       {!ro && labels.length === 1 && (
-        <PaperButton label="Aggiungi firma" onClick={() => updateAttributes({ labels: ["Il cliente", ...labels] })} className="absolute bottom-0 left-0 opacity-0 group-hover/sig:opacity-100 focus-visible:opacity-100">
-          <Plus /> Aggiungi firma
+        <PaperButton label={t("Aggiungi firma")} onClick={() => updateAttributes({ labels: [t("Il cliente"), ...labels] })} className="absolute bottom-0 left-0 opacity-0 group-hover/sig:opacity-100 focus-visible:opacity-100">
+          <Plus /> {t("Aggiungi firma")}
         </PaperButton>
       )}
     </Block>
@@ -339,7 +340,7 @@ export const CompanyHeader = atom("companyHeader", {}, CompanyHeaderView, () => 
 
 export const Party = atom(
   "party",
-  { label: attr("label", "Spett.le"), name: attr("name", ""), address: attr("address", ""), vat: attr("vat", ""), email: attr("email", "") },
+  { label: attr("label", t("Spett.le")), name: attr("name", ""), address: attr("address", ""), vat: attr("vat", ""), email: attr("email", "") },
   PartyView,
   (a) => partyText(a as unknown as PartyAttrs),
 );
@@ -348,7 +349,7 @@ export const ItemsTable = atom("itemsTable", { items: attr("items", []) }, Items
 
 export const PaymentInfo = atom("paymentInfo", { terms: attr("terms", "") }, PaymentInfoView, (a) => paymentText(a.terms, loadCompany()));
 
-export const SignatureBlock = atom("signatureBlock", { labels: attr("labels", ["Il cliente", "Il fornitore"]), place: attr("place", ""), date: attr("date", "") }, SignatureView, (a) =>
+export const SignatureBlock = atom("signatureBlock", { labels: attr("labels", [t("Il cliente"), t("Il fornitore")]), place: attr("place", ""), date: attr("date", "") }, SignatureView, (a) =>
   signatureText(a as unknown as SignatureAttrs),
 );
 

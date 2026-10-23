@@ -1,5 +1,6 @@
 // Tiptap JSON -> pdfmake document -> PDF bytes. Pure data mapping, no DOM, so it runs in the browser and in Node tests.
 import type { Column, Content, ContextPageSize, CustomTableLayout, TableCell, TDocumentDefinitions } from "pdfmake/interfaces";
+import { t } from "../lib/i18n.ts";
 import { A4_MM, DEFAULT_MARGINS, eur, lineTotal, num, totals, type CompanyData, type Item, type JSONContent, type Margins, type PartyAttrs, type SignatureAttrs } from "./model.ts";
 
 const PT_PER_MM = 72 / 25.4;
@@ -62,13 +63,13 @@ function table(n: JSONContent, ctx: Ctx): Content {
 
 function companyHeader(ctx: Ctx): Content {
   const c = ctx.company;
-  const ids = [c.vat && `P.IVA ${c.vat}`, c.taxCode && c.taxCode !== c.vat && `C.F. ${c.taxCode}`].filter(Boolean).join("  ·  ");
+  const ids = [c.vat && t("P.IVA {vat}", { vat: c.vat }), c.taxCode && c.taxCode !== c.vat && t("C.F. {taxCode}", { taxCode: c.taxCode })].filter(Boolean).join("  ·  ");
   const contacts = [c.email, c.phone].filter(Boolean).join("  ·  ");
   const details: Column = {
     width: "*",
     stack: [
-      { text: c.name || "[Ragione sociale]", bold: true, fontSize: 13, margin: [0, 0, 0, 3] },
-      { text: c.address || "[Indirizzo]", color: MUTED, fontSize: 9 },
+      { text: c.name || t("[Ragione sociale]"), bold: true, fontSize: 13, margin: [0, 0, 0, 3] },
+      { text: c.address || t("[Indirizzo]"), color: MUTED, fontSize: 9 },
       ids ? { text: ids, color: MUTED, fontSize: 9 } : "",
       contacts ? { text: contacts, color: MUTED, fontSize: 9 } : "",
     ],
@@ -88,14 +89,14 @@ function party(a: PartyAttrs): Content {
     { text: a.label, color: MUTED, fontSize: 9, margin: [0, 0, 0, 2] },
     { text: a.name, bold: true },
     a.address && { text: a.address },
-    a.vat && { text: `P.IVA / C.F. ${a.vat}` },
+    a.vat && { text: t("P.IVA / C.F. {vat}", { vat: a.vat }) },
     a.email && { text: a.email },
   ].filter(Boolean) as Content[];
   return { columns: [{ width: "*", text: "" }, { width: "*", stack }], margin: [0, 0, 0, 18], unbreakable: true };
 }
 
 function itemsTable(list: Item[]): Content {
-  const head = ["Descrizione", "Q.tà", "Prezzo unit.", "IVA", "Importo"].map((text, i) => ({ text, color: MUTED, fontSize: 9, alignment: i ? ("right" as const) : undefined }));
+  const head = [t("Descrizione"), t("Q.tà"), t("Prezzo unit."), t("IVA"), t("Importo")].map((text, i) => ({ text, color: MUTED, fontSize: 9, alignment: i ? ("right" as const) : undefined }));
   const rows = list.map((it) => [
     { text: it.description || " " },
     { text: num(it.qty), alignment: "right" as const },
@@ -103,11 +104,11 @@ function itemsTable(list: Item[]): Content {
     { text: `${it.vat}%`, alignment: "right" as const },
     { text: eur(lineTotal(it)), alignment: "right" as const },
   ]);
-  const t = totals(list);
+  const tot = totals(list);
   const sums: TableCell[][] = [
-    [{ text: "Imponibile", color: MUTED }, { text: eur(t.net), alignment: "right" }],
-    ...t.vat.map((v): TableCell[] => [{ text: `IVA ${v.rate}% su ${eur(v.base)}`, color: MUTED }, { text: eur(v.tax), alignment: "right" }]),
-    [{ text: "Totale", bold: true, fontSize: 12 }, { text: eur(t.total), bold: true, fontSize: 12, alignment: "right" }],
+    [{ text: t("Imponibile"), color: MUTED }, { text: eur(tot.net), alignment: "right" }],
+    ...tot.vat.map((v): TableCell[] => [{ text: t("IVA {rate}% su {base}", { rate: v.rate, base: eur(v.base) }), color: MUTED }, { text: eur(v.tax), alignment: "right" }]),
+    [{ text: t("Totale"), bold: true, fontSize: 12 }, { text: eur(tot.total), bold: true, fontSize: 12, alignment: "right" }],
   ];
   return {
     stack: [
@@ -126,9 +127,9 @@ function paymentInfo(terms: string, ctx: Ctx): Content {
   const c = ctx.company;
   return {
     stack: [
-      { text: "Condizioni di pagamento", bold: true, fontSize: SIZES.h3, margin: [0, 4, 0, 4] },
+      { text: t("Condizioni di pagamento"), bold: true, fontSize: SIZES.h3, margin: [0, 4, 0, 4] },
       terms ? { text: terms, margin: [0, 0, 0, 3] } : "",
-      { text: [{ text: "IBAN  ", color: MUTED }, { text: c.iban || "[IBAN]" }, c.name ? { text: `  ·  intestato a ${c.name}`, color: MUTED } : ""] },
+      { text: [{ text: "IBAN  ", color: MUTED }, { text: c.iban || "[IBAN]" }, c.name ? { text: t("  ·  intestato a {name}", { name: c.name }), color: MUTED } : ""] },
     ],
     margin: [0, 0, 0, 12],
     unbreakable: true,
@@ -148,7 +149,7 @@ function signatureBlock(a: SignatureAttrs): Content {
   const columns: Column[] = labels.length === 1 ? [{ width: "*", text: "" }, signer(labels[0])] : labels.flatMap((l, i) => (i ? [{ width: "*", text: "" }, signer(l)] : [signer(l)]));
   const where = [a.place, a.date].filter(Boolean).join(", ");
   return {
-    stack: [where ? { text: [{ text: "Luogo e data  ", color: MUTED }, where], margin: [0, 0, 0, 14] } : "", { columns }],
+    stack: [where ? { text: [{ text: t("Luogo e data  "), color: MUTED }, where], margin: [0, 0, 0, 14] } : "", { columns }],
     margin: [0, 14, 0, 10],
     unbreakable: true,
   };
@@ -156,7 +157,7 @@ function signatureBlock(a: SignatureAttrs): Content {
 
 function image(n: JSONContent, ctx: Ctx): Content {
   const src = n.attrs?.src as string | undefined;
-  if (!src || !/^data:image\/(png|jpe?g);/i.test(src)) return { text: "[immagine non supportata: usa PNG o JPEG]", color: MUTED, margin: [0, 0, 0, 6] };
+  if (!src || !/^data:image\/(png|jpe?g);/i.test(src)) return { text: t("[immagine non supportata: usa PNG o JPEG]"), color: MUTED, margin: [0, 0, 0, 6] };
   const w = Number(n.attrs?.width);
   return w ? { image: src, width: Math.min(w * 0.75, ctx.width), margin: [0, 2, 0, 8] } : { image: src, fit: [ctx.width, 420], margin: [0, 2, 0, 8] };
 }
@@ -209,7 +210,7 @@ export function toDocDefinition(content: JSONContent, opts: { company: CompanyDa
   return {
     pageSize: "A4",
     pageMargins: [m.left * PT_PER_MM, m.top * PT_PER_MM, m.right * PT_PER_MM, m.bottom * PT_PER_MM],
-    info: { title: opts.title ?? "Documento", creator: "PDF Toolkit" },
+    info: { title: opts.title ?? t("Documento"), creator: "PDF Toolkit" },
     defaultStyle: { font: "Roboto", fontSize: SIZES.body, lineHeight: 1.2, color: TEXT },
     content: blocks(content.content, ctx),
     footer: (current: number, total: number, size: ContextPageSize) => ({

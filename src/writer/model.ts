@@ -1,4 +1,5 @@
 // Pure document model shared by the editor, the PDF export, templates and tests. No DOM, no React.
+import { locale } from "../lib/i18n.ts";
 import type { JSONContent } from "@tiptap/react";
 
 export type { JSONContent };
@@ -61,7 +62,7 @@ export function parseNumber(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export const today = () => new Date().toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric" });
+export const today = () => new Date().toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
 
 // JSON builders keep templates and blocks readable.
 type Mark = "bold" | "italic" | "underline";

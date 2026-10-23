@@ -1,3 +1,4 @@
+import { t } from "./i18n.ts";
 // BER TLV: id is the identifier byte, content is b[start, end), the next sibling starts at `next`.
 type Node = { id: number; cons: boolean; start: number; end: number; next: number };
 
@@ -11,7 +12,7 @@ function tlv(b: Uint8Array, p: number): Node {
   if (len === 0x80) {
     let q = p;
     while (b[q] !== 0 || b[q + 1] !== 0) {
-      if (q >= b.length) throw new Error("P7M malformato.");
+      if (q >= b.length) throw new Error(t("P7M malformato."));
       q = tlv(b, q).next;
     }
     return { id, cons, start: p, end: q, next: q + 2 };
@@ -21,7 +22,7 @@ function tlv(b: Uint8Array, p: number): Node {
     len = 0;
     for (let i = 0; i < n; i++) len = len * 256 + b[p++];
   }
-  if (!(p + len <= b.length)) throw new Error("P7M malformato.");
+  if (!(p + len <= b.length)) throw new Error(t("P7M malformato."));
   return { id, cons, start: p, end: p + len, next: p + len };
 }
 
@@ -56,13 +57,13 @@ function encapContent(b: Uint8Array): Uint8Array | null {
   } catch {
     return null;
   }
-  if (encap.length < 2) throw new Error("Il file P7M non contiene il documento (firma separata dal contenuto).");
+  if (encap.length < 2) throw new Error(t("Il file P7M non contiene il documento (firma separata dal contenuto)."));
   return octets(b, children(b, encap[1])[0]);
 }
 
 export function extractP7m(bytes: Uint8Array): Uint8Array {
   let out = encapContent(decode(bytes));
-  if (!out) throw new Error("Il file non è una busta P7M firmata valida.");
+  if (!out) throw new Error(t("Il file non è una busta P7M firmata valida."));
   for (let inner; (inner = encapContent(decode(out))); ) out = inner;
   return out;
 }

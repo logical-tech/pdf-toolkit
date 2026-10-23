@@ -22,6 +22,7 @@ import { PageCanvas } from "@/components/PageCanvas";
 import { PageLinks, PageText } from "@/components/PageText";
 import { BarDivider, FloatBar, ToolButton } from "@/components/Chrome";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export type Tool =
   | { kind: "select" }
@@ -216,9 +217,9 @@ function bounds(it: Item) {
 }
 
 const COLORS = [
-  { value: "#000000", label: "Nero" },
-  { value: "#1d3fa8", label: "Blu inchiostro" },
-  { value: "#c62828", label: "Rosso" },
+  { value: "#000000", label: t("Nero") },
+  { value: "#1d3fa8", label: t("Blu inchiostro") },
+  { value: "#c62828", label: t("Rosso") },
 ];
 
 const canRotate = (it: Item) => it.kind !== "note" && it.kind !== "field";
@@ -239,9 +240,9 @@ function ColorSwatches({ value, onPick }: { value: string; onPick: (c: string) =
           style={{ background: c.value }}
         />
       ))}
-      <label className="relative inline-flex size-6 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground" title="Altro colore">
+      <label className="relative inline-flex size-6 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground" title={t("Altro colore")}>
         <Palette className="size-4 stroke-[1.75]" />
-        <input type="color" aria-label="Altro colore" className="absolute inset-0 cursor-pointer opacity-0" value={value} onChange={(e) => onPick(e.target.value)} />
+        <input type="color" aria-label={t("Altro colore")} className="absolute inset-0 cursor-pointer opacity-0" value={value} onChange={(e) => onPick(e.target.value)} />
       </label>
     </>
   );
@@ -250,13 +251,13 @@ function ColorSwatches({ value, onPick }: { value: string; onPick: (c: string) =
 function Stepper({ label, value, min, max, step = 1, onChange }: { label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void }) {
   return (
     <>
-      <ToolButton label={`${label}: meno`} side="top" onClick={() => onChange(Math.max(min, +(value - step).toFixed(1)))}>
+      <ToolButton label={t("{label}: meno", { label })} side="top" onClick={() => onChange(Math.max(min, +(value - step).toFixed(1)))}>
         <Minus />
       </ToolButton>
       <span className="w-7 text-center text-[13px] tabular-nums" aria-label={label}>
         {value}
       </span>
-      <ToolButton label={`${label}: più`} side="top" onClick={() => onChange(Math.min(max, +(value + step).toFixed(1)))}>
+      <ToolButton label={t("{label}: più", { label })} side="top" onClick={() => onChange(Math.min(max, +(value + step).toFixed(1)))}>
         <Plus />
       </ToolButton>
     </>
@@ -280,7 +281,7 @@ function ItemBar({ item, scale, pageHeight, onChange, onRemove }: { item: Item; 
       <FloatBar className="gap-1 whitespace-nowrap">
         {item.kind === "text" && (
           <>
-            <Stepper label="Dimensione" value={item.size} min={4} max={144} onChange={(size) => onChange({ size })} />
+            <Stepper label={t("Dimensione")} value={item.size} min={4} max={144} onChange={(size) => onChange({ size })} />
             <BarDivider />
             <ColorSwatches value={item.color} onPick={(color) => onChange({ color })} />
             <BarDivider />
@@ -288,7 +289,7 @@ function ItemBar({ item, scale, pageHeight, onChange, onRemove }: { item: Item; 
         )}
         {item.kind === "shape" && (
           <>
-            <Stepper label="Spessore" value={item.width} min={0.5} max={12} step={0.5} onChange={(width) => onChange({ width })} />
+            <Stepper label={t("Spessore")} value={item.width} min={0.5} max={12} step={0.5} onChange={(width) => onChange({ width })} />
             <BarDivider />
             <ColorSwatches value={item.color} onPick={(color) => onChange({ color })} />
             <BarDivider />
@@ -298,8 +299,8 @@ function ItemBar({ item, scale, pageHeight, onChange, onRemove }: { item: Item; 
           <>
             <textarea
               autoFocus
-              aria-label="Testo del commento"
-              placeholder="Scrivi un commento…"
+              aria-label={t("Testo del commento")}
+              placeholder={t("Scrivi un commento…")}
               value={item.text}
               onChange={(e) => onChange({ text: e.target.value })}
               className="h-24 w-64 resize-none rounded-[10px] bg-muted px-2.5 py-2 text-[13px] whitespace-normal outline-none focus:ring-2 focus:ring-ring"
@@ -310,20 +311,20 @@ function ItemBar({ item, scale, pageHeight, onChange, onRemove }: { item: Item; 
         {item.kind === "field" && (
           <>
             <label className="flex h-8 items-center gap-1.5 rounded-[10px] bg-muted px-2.5 text-[13px] focus-within:ring-2 focus-within:ring-ring">
-              <span className="text-muted-foreground">Nome</span>
-              <input aria-label="Nome del campo" value={item.name} onChange={(e) => onChange({ name: e.target.value })} className="w-28 bg-transparent outline-none" />
+              <span className="text-muted-foreground">{t("Nome")}</span>
+              <input aria-label={t("Nome del campo")} value={item.name} onChange={(e) => onChange({ name: e.target.value })} className="w-28 bg-transparent outline-none" />
             </label>
             <BarDivider />
           </>
         )}
         {canRotate(item) && (
           <>
-            <ToolButton label="Ruota di 90°" side="top" onClick={() => setAngle(angle + 90)}>
+            <ToolButton label={t("Ruota di 90°")} side="top" onClick={() => setAngle(angle + 90)}>
               <RotateCcw />
             </ToolButton>
             <label className="flex h-8 items-center rounded-[10px] bg-muted px-2 text-[13px] focus-within:ring-2 focus-within:ring-ring">
               <input
-                aria-label="Rotazione in gradi"
+                aria-label={t("Rotazione in gradi")}
                 type="number"
                 step={1}
                 value={angle}
@@ -336,7 +337,7 @@ function ItemBar({ item, scale, pageHeight, onChange, onRemove }: { item: Item; 
             <BarDivider />
           </>
         )}
-        <ToolButton label="Elimina" shortcut="⌫" side="top" onClick={onRemove} className="hover:bg-destructive/10 hover:text-destructive">
+        <ToolButton label={t("Elimina")} shortcut="⌫" side="top" onClick={onRemove} className="hover:bg-destructive/10 hover:text-destructive">
           <Trash2 />
         </ToolButton>
       </FloatBar>
@@ -463,7 +464,7 @@ function OverlayItem({ item, scale, selected, editing, onSelect, onEdit, onChang
     return (
       <div
         ref={ref}
-        title={item.text || "Commento"}
+        title={item.text || t("Commento")}
         className={cn("absolute flex cursor-move items-center justify-center rounded-[4px] bg-[#ffd23f] text-black/70 shadow-[0_1px_3px_oklch(0_0_0/0.3)]", outline)}
         style={{ left: item.x * scale, top: item.y * scale, width: NOTE_SIZE * scale, height: NOTE_SIZE * scale }}
         onPointerDown={(e) => drag(e, "move")}

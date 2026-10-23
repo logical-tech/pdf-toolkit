@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { TextLayer, type PageViewport, type PDFPageProxy } from "pdfjs-dist";
+import { t } from "@/lib/i18n";
 
 // Occurrences of `query` in a page's text items, in reading order; shared with the search counter so indexes line up.
 export function findInItems(items: string[], query: string): { item: number; start: number }[] {
@@ -7,8 +8,8 @@ export function findInItems(items: string[], query: string): { item: number; sta
   const out: { item: number; start: number }[] = [];
   if (!q) return out;
   items.forEach((s, item) => {
-    const t = s.toLocaleLowerCase();
-    for (let i = t.indexOf(q); i !== -1; i = t.indexOf(q, i + q.length)) out.push({ item, start: i });
+    const lc = s.toLocaleLowerCase();
+    for (let i = lc.indexOf(q); i !== -1; i = lc.indexOf(q, i + q.length)) out.push({ item, start: i });
   });
   return out;
 }
@@ -104,8 +105,8 @@ export function PageLinks({ page, viewport, active, onOpen }: { page: PDFPagePro
         return (
           <button
             key={i}
-            title={l.url ?? "Vai alla pagina"}
-            aria-label={l.url ? `Apri ${l.url}` : "Vai alla pagina collegata"}
+            title={l.url ?? t("Vai alla pagina")}
+            aria-label={l.url ? t("Apri {url}", { url: l.url }) : t("Vai alla pagina collegata")}
             className="absolute z-[1] cursor-pointer rounded-[2px] hover:bg-ink/10"
             style={{ left: Math.min(x1, x2), top: Math.min(y1, y2), width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) }}
             onPointerDown={(e) => e.stopPropagation()}

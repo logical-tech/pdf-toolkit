@@ -4,6 +4,7 @@ import type { PDFPageProxy } from "pdfjs-dist";
 import { FloatBar, ToolButton } from "@/components/Chrome";
 import { pixelDiff } from "@/lib/scan";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 export type ComparePage = { page: PDFPageProxy; rotation: number };
 type Row = { a: string | null; b: string | null; diff: string | null; changed: number | null };
@@ -64,12 +65,12 @@ export function ComparePanel({ leftName, left, rightName, right, onClose }: { le
     <div className="fixed inset-0 z-30 overflow-auto bg-canvas">
       <div className="sticky top-0 z-10 flex justify-center pt-2.5">
         <FloatBar className="gap-3 pl-3.5">
-          <span className="text-[13px] font-medium">Confronto</span>
+          <span className="text-[13px] font-medium">{t("Confronto")}</span>
           <span className="max-w-72 truncate text-xs text-muted-foreground">
             {leftName} → {rightName}
           </span>
-          <span className="text-xs text-muted-foreground tabular-nums">{rows.every((r) => r.changed !== null) ? (differing ? `${differing} pagine diverse su ${total}` : "Nessuna differenza") : "Analisi in corso…"}</span>
-          <ToolButton label="Chiudi confronto" shortcut="esc" onClick={onClose}>
+          <span className="text-xs text-muted-foreground tabular-nums">{rows.every((r) => r.changed !== null) ? (differing ? t("{n} pagine diverse su {total}", { n: differing, total }) : t("Nessuna differenza")) : t("Analisi in corso…")}</span>
+          <ToolButton label={t("Chiudi confronto")} shortcut="esc" onClick={onClose}>
             <X />
           </ToolButton>
         </FloatBar>
@@ -83,7 +84,7 @@ export function ComparePanel({ leftName, left, rightName, right, onClose }: { le
             </span>
             {[r.a, r.b].map((src, side) => (
               <div key={side} className="paper relative rounded-[2px]" style={{ width: WIDTH, minHeight: 120 }}>
-                {src ? <img src={src} alt="" className="block w-full" /> : <div className="flex h-40 items-center justify-center text-xs text-muted-foreground">{r.changed === null ? "" : "Pagina assente"}</div>}
+                {src ? <img src={src} alt="" className="block w-full" /> : <div className="flex h-40 items-center justify-center text-xs text-muted-foreground">{r.changed === null ? "" : t("Pagina assente")}</div>}
                 {side === 1 && r.diff && <img src={r.diff} alt="" className="pointer-events-none absolute inset-0 w-full mix-blend-multiply" />}
               </div>
             ))}
