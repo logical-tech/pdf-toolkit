@@ -2,8 +2,10 @@
 import { cpSync, mkdirSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = join(dirname(new URL(import.meta.url).pathname), '..');
+// fileURLToPath, not URL.pathname: on Windows the latter yields an invalid "/D:/..." path.
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(join(root, 'package.json'));
 const pkgDir = (name, from = require) => dirname(from.resolve(`${name}/package.json`));
 
