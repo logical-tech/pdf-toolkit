@@ -13,6 +13,8 @@ App desktop per macOS (Windows e Linux funzionano), costruita con Tauri 2, React
 - **Scansioni**: raddrizza, sbianca lo sfondo, scala di grigi e OCR offline (italiano e inglese) per renderle ricercabili.
 - **Timbri su tutte le pagine**: numeri di pagina, intestazione, piè di pagina, filigrana.
 - **Salva come**: A4 o 2/4 pagine per foglio, compressione immagini, password, limiti a stampa/copia/modifica, rimozione dei dati nascosti, PDF/A per l'archiviazione, titolo e autore.
+- **Documenti**: un editor di testo semplice con modelli pronti (preventivo, fattura di cortesia, contratto, lettera) e blocchi (intestazione aziendale, cliente, voci con totali, pagamento, firma). Si salvano come `.lptk` e si esportano in PDF, anche direttamente nell'editor per firmarli.
+- **Assistenti AI**: un server MCP locale (Impostazioni → Assistenti AI) permette a Claude e ad altri assistenti di lavorare sul documento aperto nell'app: leggere, cercare, compilare, firmare (con conferma), timbrare, gestire le pagine, creare documenti dai modelli. Spento di default, solo su 127.0.0.1, con chiave di accesso.
 - **Altro**: indice (segnalibri) modificabile, allegati, confronto tra due PDF, apertura dei file firmati .p7m, stampa, annulla/ripeti, file recenti, apertura dal Finder, aggiornamenti automatici.
 
 ## Installazione

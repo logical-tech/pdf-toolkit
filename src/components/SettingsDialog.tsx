@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { McpSettings } from "@/components/McpSettings";
 import { TextMorph } from "torph/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,8 @@ type UpdateState =
   | { kind: "installing"; progress: number | null }
   | { kind: "error"; message: string };
 
-export function SettingsDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+export function SettingsDialog({ open, onOpenChange, company }: { open: boolean; onOpenChange: (o: boolean) => void; company?: ReactNode }) {
+  const [tab, setTab] = useState<"general" | "company" | "ai">("general");
   const [theme, setTheme] = useState<Theme>(loadTheme);
   const [version, setVersion] = useState("");
   const [state, setState] = useState<UpdateState>({ kind: "idle" });
@@ -61,10 +63,23 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean; onOpenCh
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[440px]">
+      <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>Impostazioni</DialogTitle>
         </DialogHeader>
+        <Segmented
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "general", label: "Generale" },
+            ...(company ? [{ value: "company" as const, label: "Azienda" }] : []),
+            { value: "ai", label: "Assistenti AI" },
+          ]}
+        />
+        {tab === "ai" && <McpSettings />}
+        {tab === "company" && company}
+        {tab === "general" && (
+        <>
         <OptionGroup>
           <OptionRow label="Aspetto">
             <Segmented<Theme>
@@ -109,6 +124,8 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean; onOpenCh
             )}
           </div>
         </OptionGroup>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );

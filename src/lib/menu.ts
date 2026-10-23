@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Recent } from "@/lib/desktop";
 
 export type MenuActions = {
+  newDocument: () => void;
   open: () => void;
   openRecent: (path: string) => void;
   clearRecent: () => void;
@@ -25,7 +26,8 @@ export type MenuActions = {
 
 // The native menu bar (HIG: every command reachable from it). Actions read through a getter so the menu,
 // built once per document state, always calls the current handlers.
-export async function installMenu(get: () => MenuActions, state: { hasDoc: boolean; recent: Recent[] }) {
+// `hasDoc`: a PDF is open in the PDF editor; `canSave`: whatever is on screen (PDF or document) can be saved.
+export async function installMenu(get: () => MenuActions, state: { hasDoc: boolean; canSave: boolean; recent: Recent[] }) {
   if (!isTauri()) return;
   const item = (text: string, action: (a: MenuActions) => void, accelerator?: string, enabled = true) =>
     MenuItem.new({ text, accelerator, enabled, action: () => action(get()) });
@@ -59,6 +61,7 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
   const file = await Submenu.new({
     text: "File",
     items: [
+      await item("Nuovo documento", (a) => a.newDocument(), "CmdOrCtrl+N"),
       await item("Apri…", (a) => a.open(), "CmdOrCtrl+O"),
       recent,
       await sep(),
@@ -66,8 +69,8 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
       await item(doc ? "Aggiungi immagini…" : "Crea PDF da immagini…", (a) => a.addImages()),
       await item("Confronta con un altro PDF…", (a) => a.compare(), undefined, doc),
       await sep(),
-      await item("Salva", (a) => a.save(), "CmdOrCtrl+S", doc),
-      await item("Salva come…", (a) => a.saveAs(), "CmdOrCtrl+Shift+S", doc),
+      await item("Salva", (a) => a.save(), "CmdOrCtrl+S", state.canSave),
+      await item("Salva come…", (a) => a.saveAs(), "CmdOrCtrl+Shift+S", state.canSave),
       await sep(),
       await item("Stampa…", (a) => a.print(), "CmdOrCtrl+P", doc),
       await sep(),

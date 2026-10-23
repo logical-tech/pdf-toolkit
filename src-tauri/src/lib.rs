@@ -6,6 +6,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_fs::FsExt;
 
+mod mcp;
+
 /// Paths opened via Finder / argv that the frontend has not drained yet.
 #[derive(Default)]
 struct OpenedFiles(Mutex<Vec<String>>);
@@ -13,7 +15,7 @@ struct OpenedFiles(Mutex<Vec<String>>);
 fn has_pdf_ext(path: &Path) -> bool {
     path.extension()
         .and_then(|e| e.to_str())
-        .is_some_and(|e| e.eq_ignore_ascii_case("pdf") || e.eq_ignore_ascii_case("p7m"))
+        .is_some_and(|e| ["pdf", "p7m", "lptk"].iter().any(|x| e.eq_ignore_ascii_case(x)))
 }
 
 fn check_allowed(path: &Path) -> Result<(), String> {
@@ -224,12 +226,17 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_opener::init())
         .manage(OpenedFiles::default())
+        .manage(mcp::Mcp::default())
         .invoke_handler(tauri::generate_handler![
             take_opened_files,
             allow_file,
             ghostscript_path,
             convert_pdfa,
-            print_page
+            print_page,
+            mcp::mcp_set_tools,
+            mcp::mcp_respond,
+            mcp::mcp_status,
+            mcp::mcp_configure
         ])
         .setup(|app| {
             #[cfg(desktop)]
@@ -259,6 +266,9 @@ mod tests {
         assert!(has_pdf_ext(Path::new("/a/b.pdf")));
         assert!(has_pdf_ext(Path::new("/a/B.PDF")));
         assert!(has_pdf_ext(Path::new("firmato.pdf.P7M")));
+        assert!(has_pdf_ext(Path::new("/a/progetto.lptk")));
+        assert!(has_pdf_ext(Path::new("/a/progetto.LPTK")));
+        assert!(!has_pdf_ext(Path::new("/a/progetto.lptk.zip")));
         assert!(!has_pdf_ext(Path::new("/a/b.txt")));
         assert!(!has_pdf_ext(Path::new("/a/pdf")));
         assert!(!has_pdf_ext(Path::new("/a/b.pdf.exe")));

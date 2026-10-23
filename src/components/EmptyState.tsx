@@ -1,9 +1,9 @@
-import { FileText, FileUp, Images } from "lucide-react";
+import { FilePen, FileText, FileUp, Images } from "lucide-react";
 import type { Recent } from "@/lib/desktop";
 import { Button } from "@/components/ui/button";
 
 // A blank sheet with a signature being written on it: the app's one authored motion moment.
-export function EmptyState({ onOpen, onImages, recent, onRecent }: { onOpen: () => void; onImages: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
+export function EmptyState({ onOpen, onImages, onWrite, recent, onRecent }: { onOpen: () => void; onImages: () => void; onWrite: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-10 px-6 py-24">
       <button onClick={onOpen} aria-label="Apri un PDF" className="paper group relative h-[340px] w-[264px] -rotate-2 rounded-[3px] outline-none transition-[rotate,scale] duration-(--duration-slow) ease-(--ease-smooth-out) hover:rotate-0 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none">
@@ -36,6 +36,9 @@ export function EmptyState({ onOpen, onImages, recent, onRecent }: { onOpen: () 
         </Button>
         <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={onImages}>
           <Images /> Crea da immagini
+        </Button>
+        <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={onWrite}>
+          <FilePen /> Scrivi un documento
         </Button>
       </div>
 

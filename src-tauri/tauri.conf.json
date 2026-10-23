@@ -58,6 +58,15 @@
         "description": "Documento firmato P7M",
         "mimeType": "application/pkcs7-mime",
         "role": "Viewer"
+      },
+      {
+        "ext": [
+          "lptk"
+        ],
+        "name": "Documento PDF Toolkit",
+        "description": "Documento PDF Toolkit",
+        "mimeType": "application/x-pdf-toolkit-document",
+        "role": "Editor"
       }
     ],
     "externalBin": [

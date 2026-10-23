@@ -1,0 +1,164 @@
+/* The sheet is set in Roboto, the font embedded in the exported PDF (registered in fonts.ts), so what you see is what gets exported. */
+.writer-sheet {
+  font-family: "Writer Roboto", system-ui, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.4;
+  color: #1c1c1e;
+  user-select: text;
+}
+/* In the base layer so NodeView utility classes (muted labels, sizes) still win. */
+@layer base {
+  .writer-sheet :is(input, textarea, select) {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+.writer-sheet .ProseMirror {
+  outline: none;
+  min-height: inherit;
+  padding: var(--m-top) var(--m-right) var(--m-bottom) var(--m-left);
+}
+.writer-sheet .ProseMirror > * + * {
+  margin-top: 0;
+}
+.writer-sheet p {
+  margin: 0 0 6pt;
+  min-height: 1.4em;
+}
+.writer-sheet h1,
+.writer-sheet h2,
+.writer-sheet h3 {
+  font-weight: 700;
+  line-height: 1.25;
+}
+.writer-sheet h1 {
+  font-size: 18pt;
+  margin: 6pt 0 8pt;
+  letter-spacing: -0.01em;
+}
+.writer-sheet h2 {
+  font-size: 14pt;
+  margin: 8pt 0 4pt;
+}
+.writer-sheet h3 {
+  font-size: 11.5pt;
+  margin: 8pt 0 4pt;
+}
+.writer-sheet ul,
+.writer-sheet ol {
+  margin: 0 0 4pt;
+  padding-left: 16pt;
+}
+.writer-sheet ul {
+  list-style: disc;
+}
+.writer-sheet ol {
+  list-style: decimal;
+}
+.writer-sheet li > p {
+  margin-bottom: 2pt;
+}
+.writer-sheet blockquote {
+  border-left: 2pt solid #cfcfd4;
+  padding: 1pt 0 1pt 10pt;
+  margin: 2pt 0 8pt;
+  color: #48484a;
+}
+.writer-sheet blockquote p:last-child {
+  margin-bottom: 0;
+}
+.writer-sheet a {
+  color: #2a4fd6;
+  text-decoration: underline;
+}
+.writer-sheet hr {
+  border: 0;
+  border-top: 0.5pt solid #cfcfd4;
+  margin: 6pt 0 12pt;
+}
+.writer-sheet hr.ProseMirror-selectednode,
+.writer-sheet img.ProseMirror-selectednode,
+.writer-sheet .writer-page-break.ProseMirror-selectednode {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 2px;
+}
+.writer-sheet img {
+  max-width: 100%;
+  height: auto;
+  margin: 2pt 0 8pt;
+}
+.writer-sheet table:not(.tabular-nums) {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 2pt 0 10pt;
+}
+.writer-sheet .tableWrapper {
+  overflow-x: auto;
+}
+.writer-sheet table:not(.tabular-nums) :is(td, th) {
+  border: 0.5pt solid #cfcfd4;
+  padding: 4pt 5pt;
+  vertical-align: top;
+  position: relative;
+}
+.writer-sheet table:not(.tabular-nums) th {
+  background: #f3f3f5;
+  font-weight: 700;
+  text-align: left;
+}
+.writer-sheet table:not(.tabular-nums) :is(td, th) p {
+  margin: 0;
+}
+.writer-sheet .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklch, var(--ink) 12%, transparent);
+  pointer-events: none;
+}
+
+/* Page break: a dashed rule with its name, the width of the text block. */
+.writer-sheet .writer-page-break {
+  position: relative;
+  height: 20pt;
+  margin: 6pt 0;
+  cursor: default;
+}
+.writer-sheet .writer-page-break::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px dashed #b4b4ba;
+}
+.writer-sheet .writer-page-break::after {
+  content: "Interruzione di pagina";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  padding: 0 8px;
+  background: white;
+  font: 500 11px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  color: #8e8e93;
+}
+
+.writer-sheet .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: #00000059;
+  pointer-events: none;
+}
+.writer-sheet .ProseMirror-gapcursor::after {
+  border-top-color: var(--ink);
+}
+.writer-sheet ::selection {
+  background: color-mix(in oklch, var(--ink) 22%, transparent);
+}
+
+/* ProseMirror opens with the first block selected; only show that selection once the user is in the document. */
+.writer-sheet .ProseMirror:not(.ProseMirror-focused) .writer-block {
+  outline-color: transparent;
+}
