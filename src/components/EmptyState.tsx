@@ -1,6 +1,7 @@
 import { FilePen, FileText, FileUp, Images } from "lucide-react";
 import type { Recent } from "@/lib/desktop";
 import { Button } from "@/components/ui/button";
+import { LogicalMark } from "@/components/LogicalMark";
 
 // A blank sheet with a signature being written on it: the app's one authored motion moment.
 export function EmptyState({ onOpen, onImages, onWrite, recent, onRecent }: { onOpen: () => void; onImages: () => void; onWrite: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
@@ -53,6 +54,10 @@ export function EmptyState({ onOpen, onImages, onWrite, recent, onRecent }: { on
           ))}
         </div>
       )}
+
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <LogicalMark className="size-3.5" /> Realizzato da Logical
+      </p>
     </div>
   );
 }

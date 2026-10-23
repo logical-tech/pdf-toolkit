@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { McpSettings } from "@/components/McpSettings";
+import { LogicalMark } from "@/components/LogicalMark";
 import { TextMorph } from "torph/react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -97,8 +98,11 @@ export function SettingsDialog({ open, onOpenChange, company }: { open: boolean;
           </OptionRow>
         </OptionGroup>
         <OptionGroup>
-          <OptionRow label="Versione">
-            <span className="text-[13px] text-muted-foreground tabular-nums">{version}</span>
+          <OptionRow label="Versione" hint="Realizzato da Logical">
+            <span className="flex items-center gap-2 text-[13px] text-muted-foreground tabular-nums">
+              {version}
+              <LogicalMark className="size-5 text-foreground" />
+            </span>
           </OptionRow>
           <OptionRow label="Licenze" hint="CC BY-NC-SA 4.0; Ghostscript è AGPL-3.0">
             <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={() => openExternal("https://github.com/logical-tech/pdf-toolkit/blob/main/THIRD_PARTY_NOTICES.md")}>
