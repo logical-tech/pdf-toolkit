@@ -12,7 +12,7 @@ import { t } from "@/lib/i18n";
 const STORE_KEY = "pdf-toolkit:signatures";
 const INKS = ["#111111", "#1d3fa8"];
 
-const loadSaved = (): string[] => {
+export const loadSaved = (): string[] => {
   try {
     return JSON.parse(localStorage.getItem(STORE_KEY) ?? "[]");
   } catch {
@@ -46,11 +46,17 @@ function trimCanvas(canvas: HTMLCanvasElement): string | null {
   return out.toDataURL("image/png");
 }
 
-export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean; onOpenChange: (o: boolean) => void; onPick: (src: string) => void }) {
+// `manage`: only add and remove saved signatures, without placing one on the page.
+export function SignatureDialog({ open, onOpenChange, onPick, manage }: { open: boolean; onOpenChange: (o: boolean) => void; onPick?: (src: string) => void; manage?: boolean }) {
   const [saved, setSaved] = useState(loadSaved);
   const [ink, setInk] = useState(INKS[0]);
   const padRef = useRef<SignaturePad | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Two instances (place and manage) share the store, so each reloads it when it opens.
+  useEffect(() => {
+    if (open) setSaved(loadSaved());
+  }, [open]);
 
   const pick = (src: string, remember: boolean) => {
     if (remember && !saved.includes(src)) {
@@ -58,7 +64,8 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
       setSaved(next);
       storeSaved(next);
     }
-    onPick(src);
+    if (manage) return void padRef.current?.clear();
+    onPick?.(src);
     onOpenChange(false);
   };
 
@@ -72,19 +79,20 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{t("Firma")}</DialogTitle>
+          <DialogTitle>{manage ? t("Le mie firme") : t("Firma")}</DialogTitle>
         </DialogHeader>
 
+        {manage && !saved.length && <p className="text-[13px] text-muted-foreground">{t("Nessuna firma salvata. Disegnane una o carica un'immagine: la ritroverai pronta quando firmi.")}</p>}
         {saved.length > 0 && (
           <div className="grid grid-cols-4 gap-2">
             {saved.map((s) => (
               <div key={s} className="group relative">
-                <button className="flex h-16 w-full items-center justify-center rounded-md border bg-white p-1.5 hover:border-foreground/40" onClick={() => pick(s, false)}>
+                <button className={cn("flex h-16 w-full items-center justify-center rounded-md border bg-white p-1.5", !manage && "hover:border-foreground/40")} disabled={manage} onClick={() => pick(s, false)}>
                   <img src={s} alt={t("Firma salvata")} className="max-h-full max-w-full" />
                 </button>
                 <button
                   aria-label={t("Rimuovi firma salvata")}
-                  className="absolute -top-1.5 -right-1.5 hidden size-5 items-center justify-center rounded-full border bg-background group-hover:flex"
+                  className={cn("absolute -top-1.5 -right-1.5 size-5 items-center justify-center rounded-full border bg-background", manage ? "flex" : "hidden group-hover:flex")}
                   onClick={() => forget(s)}
                 >
                   <X className="size-3" />
@@ -123,7 +131,7 @@ export function SignatureDialog({ open, onOpenChange, onPick }: { open: boolean;
                   if (src) pick(src, true);
                 }}
               >
-                {t("Usa firma")}
+                {manage ? t("Salva firma") : t("Usa firma")}
               </Button>
             </DialogFooter>
           </TabsContent>

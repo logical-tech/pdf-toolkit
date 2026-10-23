@@ -15,7 +15,7 @@ struct OpenedFiles(Mutex<Vec<String>>);
 fn has_pdf_ext(path: &Path) -> bool {
     path.extension()
         .and_then(|e| e.to_str())
-        .is_some_and(|e| ["pdf", "p7m", "lptk"].iter().any(|x| e.eq_ignore_ascii_case(x)))
+        .is_some_and(|e| ["pdf", "p7m", "lptk", "xml"].iter().any(|x| e.eq_ignore_ascii_case(x)))
 }
 
 fn check_allowed(path: &Path) -> Result<(), String> {
@@ -174,35 +174,68 @@ fn pdfa_args(icc: &str, icc_is_file: bool, def_ps: &Path, input: &Path, output: 
     args
 }
 
-fn run_pdfa(bytes: Vec<u8>) -> Result<Vec<u8>, String> {
+/// Runs Ghostscript on `bytes` in a scratch folder; `args` gets the folder, the input and the output path.
+fn run_gs(bytes: &[u8], what: &str, args: impl FnOnce(&Path, &Path, &Path) -> Result<Vec<String>, String>) -> Result<Vec<u8>, String> {
     let gs = find_ghostscript().ok_or("Ghostscript non è installato.")?;
-    let (icc, icc_is_file) = icc_location(&gs);
 
     static COUNTER: AtomicU64 = AtomicU64::new(0);
     let dir = std::env::temp_dir().join(format!(
-        "pdf-toolkit-pdfa-{}-{}",
+        "pdf-toolkit-gs-{}-{}",
         std::process::id(),
         COUNTER.fetch_add(1, Ordering::Relaxed)
     ));
     std::fs::create_dir_all(&dir).map_err(|e| format!("Impossibile creare la cartella temporanea: {e}"))?;
 
     let result = (|| {
-        let (input, output, def_ps) = (dir.join("input.pdf"), dir.join("output.pdf"), dir.join("PDFA_def.ps"));
-        std::fs::write(&input, &bytes).map_err(|e| format!("Impossibile scrivere il file temporaneo: {e}"))?;
-        std::fs::write(&def_ps, pdfa_def_ps(&icc)).map_err(|e| format!("Impossibile scrivere il file temporaneo: {e}"))?;
+        let (input, output) = (dir.join("input.pdf"), dir.join("output.pdf"));
+        std::fs::write(&input, bytes).map_err(|e| format!("Impossibile scrivere il file temporaneo: {e}"))?;
         let out = Command::new(&gs)
-            .args(pdfa_args(&icc, icc_is_file, &def_ps, &input, &output))
+            .args(args(&dir, &input, &output)?)
             .output()
             .map_err(|e| format!("Impossibile avviare Ghostscript: {e}"))?;
         if !out.status.success() {
             let detail = String::from_utf8_lossy(&out.stderr);
-            return Err(format!("Conversione PDF/A non riuscita: {}", detail.trim()));
+            return Err(format!("{what} non riuscita: {}", detail.trim()));
         }
-        std::fs::read(&output).map_err(|e| format!("Impossibile leggere il PDF/A generato: {e}"))
+        std::fs::read(&output).map_err(|e| format!("Impossibile leggere il PDF generato: {e}"))
     })();
 
     let _ = std::fs::remove_dir_all(&dir);
     result
+}
+
+fn run_pdfa(bytes: Vec<u8>) -> Result<Vec<u8>, String> {
+    let gs = find_ghostscript().ok_or("Ghostscript non è installato.")?;
+    let (icc, icc_is_file) = icc_location(&gs);
+    run_gs(&bytes, "Conversione PDF/A", |dir, input, output| {
+        let def_ps = dir.join("PDFA_def.ps");
+        std::fs::write(&def_ps, pdfa_def_ps(&icc)).map_err(|e| format!("Impossibile scrivere il file temporaneo: {e}"))?;
+        Ok(pdfa_args(&icc, icc_is_file, &def_ps, input, output))
+    })
+}
+
+/// Ghostscript's own presets: /ebook keeps images at 150 dpi, /screen at 72 dpi.
+fn compress_args(strong: bool, input: &Path, output: &Path) -> Vec<String> {
+    vec![
+        "-dBATCH".into(),
+        "-dNOPAUSE".into(),
+        "-dSAFER".into(),
+        "-dQUIET".into(),
+        "-sDEVICE=pdfwrite".into(),
+        "-dCompatibilityLevel=1.6".into(),
+        format!("-dPDFSETTINGS={}", if strong { "/screen" } else { "/ebook" }),
+        "-dDetectDuplicateImages=true".into(),
+        "-dCompressFonts=true".into(),
+        format!("-sOutputFile={}", output.display()),
+        input.display().to_string(),
+    ]
+}
+
+#[tauri::command]
+async fn compress_pdf(bytes: Vec<u8>, strong: bool) -> Result<Vec<u8>, String> {
+    tauri::async_runtime::spawn_blocking(move || run_gs(&bytes, "Compressione", |_, input, output| Ok(compress_args(strong, input, output))))
+        .await
+        .map_err(|e| format!("Compressione interrotta: {e}"))?
 }
 
 #[tauri::command]
@@ -232,6 +265,7 @@ pub fn run() {
             allow_file,
             ghostscript_path,
             convert_pdfa,
+            compress_pdf,
             print_page,
             mcp::mcp_set_tools,
             mcp::mcp_respond,
@@ -268,6 +302,7 @@ mod tests {
         assert!(has_pdf_ext(Path::new("firmato.pdf.P7M")));
         assert!(has_pdf_ext(Path::new("/a/progetto.lptk")));
         assert!(has_pdf_ext(Path::new("/a/progetto.LPTK")));
+        assert!(has_pdf_ext(Path::new("/a/IT01234567890_00001.xml")));
         assert!(!has_pdf_ext(Path::new("/a/progetto.lptk.zip")));
         assert!(!has_pdf_ext(Path::new("/a/b.txt")));
         assert!(!has_pdf_ext(Path::new("/a/pdf")));
@@ -312,6 +347,15 @@ mod tests {
                 "/tmp/job/input.pdf",
             ]
         );
+    }
+
+    #[test]
+    fn compress_uses_ghostscript_presets() {
+        let (i, o) = (Path::new("/t/i.pdf"), Path::new("/t/o.pdf"));
+        assert!(compress_args(false, i, o).contains(&"-dPDFSETTINGS=/ebook".to_string()));
+        let strong = compress_args(true, i, o);
+        assert!(strong.contains(&"-dPDFSETTINGS=/screen".to_string()));
+        assert_eq!(strong.last().unwrap(), "/t/i.pdf");
     }
 
     #[test]

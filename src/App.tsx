@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Circle,
   Clock,
+  Compass,
   Copy as CopyIcon,
   EyeOff,
   Eraser,
@@ -24,8 +25,10 @@ import {
   FormInput,
   GitCompare,
   Highlighter,
+  House,
   ImagePlus,
   Images,
+  Layers,
   LayoutGrid,
   Loader2,
   MessageSquarePlus,
@@ -41,6 +44,7 @@ import {
   Search,
   Settings,
   Shapes,
+  Signature,
   Sparkles,
   Slash,
   Square,
@@ -53,6 +57,7 @@ import {
   Underline,
   Undo2,
   X,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -64,7 +69,10 @@ import { EmptyState } from "@/components/EmptyState";
 import { PdfPage, type Tool } from "@/components/PdfPage";
 import { findInItems } from "@/components/PageText";
 import { PagesView, type CleanOptions } from "@/components/PagesView";
-import { SignatureDialog } from "@/components/SignatureDialog";
+import { SignatureDialog, loadSaved as loadSignatures } from "@/components/SignatureDialog";
+import { TASKS, TaskPanel, type Task } from "@/components/TaskPanel";
+import { BatchDialog } from "@/components/BatchDialog";
+import { Tour, tourSeen, type TourName } from "@/components/Tour";
 import { PasswordDialog, SaveDialog, StampsPanel } from "@/components/Dialogs";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { SearchBar } from "@/components/SearchBar";
@@ -92,11 +100,13 @@ import {
 import { exportPdf } from "@/lib/export";
 import { useHistory } from "@/lib/history";
 import { openPdf, overwritePdf, pickFiles, savePdfAs, saveFiles, type OpenedFile } from "@/lib/io";
-import { blankPdf, imageToPngDataUrl, imagesToPdf, markDataUrl, pageToPng, stampDataUrl } from "@/lib/tools";
+import { blankPdf, type Compression, imageToPngDataUrl, imagesToPdf, markDataUrl, pageToPng, stampDataUrl } from "@/lib/tools";
 import { cleanBackground, estimateSkew, grayscale, rotateCanvas } from "@/lib/scan";
 import { ocrCanvas } from "@/lib/ocr";
+import { findRanges, type Pattern } from "@/lib/redact";
 import { extractP7m } from "@/lib/p7m";
-import { clearRecent, convertPdfa, ghostscriptPath, loadRecent, onOpenedFiles, openExternal, printPdf, pushRecent, readPath, type Recent } from "@/lib/desktop";
+import { fatturaToPdf, isFattura } from "@/lib/fattura";
+import { clearRecent, compressWithGhostscript, convertPdfa, ghostscriptPath, loadRecent, onOpenedFiles, openExternal, printPdf, pushRecent, readPath, type Recent } from "@/lib/desktop";
 import { editableFocused, installMenu, type MenuActions } from "@/lib/menu";
 import { checkForUpdate, installUpdate } from "@/lib/update";
 import { buildTools, runTool, type McpContext } from "@/lib/mcp-tools";
@@ -132,7 +142,7 @@ const STAMP_PRESETS = [
 ];
 
 const refsOf = (src: Source): PageRef[] => src.pages.map((_, index) => ({ id: crypto.randomUUID(), source: src.id, index, rotation: 0 }));
-const isPdf = (f: File) => f.type === "application/pdf" || /\.(pdf|p7m)$/i.test(f.name);
+const isPdf = (f: File) => f.type === "application/pdf" || /\.(pdf|p7m|xml)$/i.test(f.name);
 
 // The file's own outline, flattened, with each entry pointing at the page it opens.
 async function readOutline(src: Source, pages: PageRef[]): Promise<Bookmark[]> {
@@ -175,10 +185,14 @@ export default function App() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [scale, setScale] = useState(1.25);
   const [sigOpen, setSigOpen] = useState(false);
+  const [sigsOpen, setSigsOpen] = useState(false);
+  const [batchOpen, setBatchOpen] = useState(false);
+  const [tour, setTour] = useState<TourName | null>(null);
   const [saveOpen, setSaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [stampsOpen, setStampsOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [task, setTask] = useState<Task | null>(null);
   const [search, setSearch] = useState<{ query: string; index: number } | null>(null);
   const [hits, setHits] = useState<{ page: string; k: number }[]>([]);
   const [textSel, setTextSel] = useState<{ rects: { page: string; x: number; y: number; w: number; h: number }[]; left: number; top: number; text: string } | null>(null);
@@ -223,6 +237,17 @@ export default function App() {
     for (const raw of files) {
       try {
         const f = unwrap(raw);
+        // An e-invoice (plain .xml or inside a .p7m) opens as a readable PDF, followed by its PDF attachments.
+        if (isFattura(f.bytes)) {
+          const name = f.name.replace(/\.xml$/i, "");
+          const { pdf, pdfs } = await fatturaToPdf(f.bytes, f.name);
+          out.push((await loadSource(`${name}.pdf`, pdf, async () => null))!);
+          for (const a of pdfs) {
+            const s = await loadSource(a.name, a.bytes, () => askPassword(a.name)).catch(() => null);
+            if (s) out.push(s);
+          }
+          continue;
+        }
         const s = await loadSource(f.name, f.bytes, () => askPassword(f.name));
         if (s) out.push(s);
       } catch (e) {
@@ -238,7 +263,7 @@ export default function App() {
     const [base] = srcs;
     const { info } = (await base.pdf.getMetadata().catch(() => ({ info: {} }))) as { info: Record<string, string> };
     const pages = srcs.flatMap(refsOf);
-    const path = file && !/\.p7m$/i.test(file.name) ? file.path : undefined;
+    const path = file && !/\.(p7m|xml)$/i.test(file.name) ? file.path : undefined;
     doc?.sources.forEach((s) => s.pdf.loadingTask.destroy());
     const perms = await base.pdf.getPermissions().catch(() => null);
     const restrict = perms ? { print: perms.has(PermissionFlag.PRINT), copy: perms.has(PermissionFlag.COPY), modify: perms.has(PermissionFlag.MODIFY_CONTENTS) } : null;
@@ -280,6 +305,29 @@ export default function App() {
     if (!(await confirmDiscard(true))) return;
     if (writer?.saved) setWriter((w) => w && { ...w, file: w.saved });
     else (setWriter(null), setMode("pdf"));
+  };
+  // Closes what is on screen; with nothing else open, the home shows again.
+  const closeDocument = async () => {
+    if (inWriter) {
+      if (!(await confirmDiscard(writerDirty))) return;
+      setWriter(null);
+      setMode("pdf");
+      return;
+    }
+    if (!doc || !(await confirmDiscard())) return;
+    doc.sources.forEach((s) => s.pdf.loadingTask.destroy());
+    setDoc(null);
+    history.reset(EMPTY_WORK);
+    setSavedWork(EMPTY_WORK);
+    setView("editor");
+    setTask(null);
+    setCompare(null);
+    setSearch(null);
+    setSelectedId(null);
+    setTool({ kind: "select" });
+    setPanelOpen(false);
+    setStampsOpen(false);
+    if (writer) setMode("writer");
   };
   const newDocument = () => openWriter({ file: null, name: t("Documento senza titolo"), saved: null });
   const openFile = async (file: OpenedFile | null) => {
@@ -423,6 +471,57 @@ export default function App() {
     if (tool.kind !== "pen") setTool({ kind: "select" });
   };
 
+  // Initials on every sheet: copies an item to the same spot on every other page, kept inside smaller pages.
+  const repeatOnAllPages = (id: string) => {
+    const item = work.items.find((i) => i.id === id);
+    if (!doc || !item || !("w" in item)) return;
+    const copies = work.pages
+      .filter((p) => p.id !== item.page)
+      .map((p) => {
+        const size = viewportOf(pageProxy(doc.sources, p), p, 1);
+        return { ...item, id: crypto.randomUUID(), page: p.id, x: Math.max(0, Math.min(item.x, size.width - item.w)), y: Math.max(0, Math.min(item.y, size.height - item.h)) };
+      });
+    setWork((w) => ({ ...w, items: [...w.items, ...copies] }), `repeat:${id}`);
+    toast.success(t("Copiata su altre {n} pagine", { n: copies.length }));
+  };
+
+  // Black boxes over every match of `query` and of the chosen patterns, in the text layer and in OCR words.
+  // shortcut: where a match starts inside a text run is measured with the run's CSS font family, not the embedded font; reviewed by eye.
+  const redactMatches = async (query: string, patterns: Pattern[]) => {
+    if (!doc) return { found: 0, pages: 0 };
+    const made: Item[] = [];
+    const ctx = document.createElement("canvas").getContext("2d")!;
+    const box = (page: string, x: number, y: number, w: number, h: number): Item => ({ id: crypto.randomUUID(), page, kind: "rect", style: "redact", x: x - 1, y: y - 1, w: w + 2, h: h + 2 });
+    for (const ref of work.pages) {
+      const page = pageProxy(doc.sources, ref);
+      const vp = viewportOf(page, ref, 1);
+      const content = await page.getTextContent();
+      for (const it of content.items) {
+        if (!("str" in it) || !it.str) continue;
+        ctx.font = `100px ${content.styles[it.fontName]?.fontFamily ?? "sans-serif"}`;
+        const full = ctx.measureText(it.str).width || 1;
+        const at = (n: number) => (it.width * ctx.measureText(it.str.slice(0, n)).width) / full;
+        const [a, b, c, d, e, f] = it.transform as number[];
+        const along = Math.hypot(a, b) || 1;
+        for (const [from, to] of findRanges(it.str, query, patterns)) {
+          const [w0, w1] = [at(from), at(to)];
+          // Corners in user space along the baseline, from a little below it to the top of the glyphs.
+          const corners = [w0, w1].flatMap((w) =>
+            [-0.25, 0.95].map((k) => vp.convertToViewportPoint(e + (a / along) * w + c * k, f + (b / along) * w + d * k)),
+          );
+          const xs = corners.map((p) => p[0]);
+          const ys = corners.map((p) => p[1]);
+          made.push(box(ref.id, Math.min(...xs), Math.min(...ys), Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)));
+        }
+      }
+      for (const w of work.ocr[ref.id] ?? []) {
+        for (const [from, to] of findRanges(w.text, query, patterns)) made.push(box(ref.id, w.x + (w.w * from) / w.text.length, w.y, (w.w * (to - from)) / w.text.length, w.h));
+      }
+    }
+    if (made.length) setWork((w) => ({ ...w, items: [...w.items, ...made] }), `redact:${made[0].id}`);
+    return { found: made.length, pages: new Set(made.map((m) => m.page)).size };
+  };
+
   const placeImage = async (src: string, width: number, hint: string) => {
     const img = new Image();
     img.src = src;
@@ -536,6 +635,43 @@ export default function App() {
       toast(t("{n} parole riconosciute: dopo il salvataggio il testo sarà ricercabile e copiabile", { n: words }));
       return true;
     });
+
+  // An action from the home or the menus: it works on the open PDF, or first asks for one (several, to merge).
+  const startTask = async (next: Task) => {
+    if (inWriter) setMode("pdf");
+    if (!doc || inWriter) {
+      if (next === "merge") {
+        const files = await pickFiles("application/pdf,.pdf,.p7m", true);
+        if (!files.length || !(await confirmDiscard())) return;
+        const srcs = await toSources(await Promise.all(files.map(async (f) => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) }))));
+        if (!srcs.length) return;
+        await openSources(srcs);
+        if (srcs.length > 1) setDoc((d) => d && { ...d, name: t("PDF unito.pdf") });
+      } else {
+        const file = await openPdf().catch((e) => (toast.error(String(e)), null));
+        if (!file || !(await openFile(file).catch((e) => (toast.error(String((e as Error).message ?? e)), false)))) return;
+      }
+    }
+    setView(next === "merge" ? "pages" : "editor");
+    setStampsOpen(false);
+    setTask(next);
+    if (next === "sign" && !loadSignatures().length) setSigOpen(true);
+  };
+  const compressAndSave = async (level: Compression) => {
+    let size: number | null = null;
+    await run(t("PDF compresso salvato"), async (d) => {
+      let bytes = await build(d, work.pages, { ...options, compress: level });
+      // Ghostscript also shrinks fonts and non-JPEG images; it cannot keep a password, so protected output skips it.
+      if (ghostscript && !options.password && !options.restrict) {
+        const gs = await compressWithGhostscript(bytes, level === "strong").catch(() => null);
+        if (gs && gs.length < bytes.length) bytes = gs;
+      }
+      if (!(await savePdfAs(t("{name}-compresso.pdf", { name: baseName }), bytes))) return false;
+      size = bytes.length;
+      return true;
+    });
+    return size;
+  };
 
   // The MCP tools act through this object, rebuilt every render so they always see the current state.
   const mcpCtx = useRef<McpContext>(null!);
@@ -728,8 +864,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (saveOpen) ghostscriptPath().then((p) => setGhostscript(!!p));
-  }, [saveOpen]);
+    if (saveOpen || task === "compress") ghostscriptPath().then((p) => setGhostscript(!!p));
+  }, [saveOpen, task]);
+
+  // First launch shows the home tour, the first opened PDF the editor one; each runs once.
+  const showEditor = !!doc && !inWriter;
+  useEffect(() => {
+    const name: TourName | null = !doc && !inWriter ? "home" : showEditor && !sigOpen ? "editor" : null;
+    if (!name || tour || tourSeen(name)) return;
+    const timer = setTimeout(() => setTour(name), 600);
+    return () => clearTimeout(timer);
+  }, [!!doc, inWriter, sigOpen]);
+  const startTour = () => setTour(showEditor ? "editor" : "home");
 
   const zoom = (dir: 1 | -1) =>
     setScale((s) => (dir > 0 ? (ZOOMS.find((z) => z > s + 0.001) ?? s) : ([...ZOOMS].reverse().find((z) => z < s - 0.001) ?? s)));
@@ -747,6 +893,7 @@ export default function App() {
     open,
     openRecent: openPath,
     clearRecent: () => setRecent(clearRecent()),
+    close: () => void closeDocument(),
     addPdf,
     addImages,
     compare: startCompare,
@@ -759,8 +906,12 @@ export default function App() {
     zoomOut: () => zoom(-1),
     fit: fitWidth,
     togglePanel: () => doc && setPanelOpen((o) => !o),
-    toggleStamps: () => doc && setStampsOpen((o) => !o),
+    toggleStamps: () => doc && (setTask(null), setStampsOpen((o) => !o)),
+    task: (k) => void startTask(k),
     settings: () => setSettingsOpen(true),
+    signatures: () => setSigsOpen(true),
+    batch: () => setBatchOpen(true),
+    tour: startTour,
   };
   useEffect(() => {
     installMenu(() => actions.current, { hasDoc: !!doc && !inWriter, canSave: inWriter ? !!writer?.file : !!doc, recent }).catch(() => {});
@@ -856,7 +1007,7 @@ export default function App() {
       >
         <main ref={mainRef} className="canvas-scroll absolute inset-0 overflow-auto">
           {!doc ? (
-            <EmptyState onOpen={open} onImages={addImages} onWrite={newDocument} recent={recent} onRecent={openPath} />
+            <EmptyState onOpen={open} recent={recent} onRecent={openPath} />
           ) : view === "pages" ? (
             <PagesView
               sources={doc.sources}
@@ -925,6 +1076,16 @@ export default function App() {
 
         <div className={cn("pointer-events-none absolute top-2.5 flex items-center gap-2", MAC_WINDOW ? "left-[84px]" : "left-3")}>
           <FloatBar>
+            {(doc || inWriter) && (
+              <>
+                <div data-tour="home" className="flex">
+                  <ToolButton label={t("Chiudi e torna alla home")} onClick={closeDocument}>
+                    <House />
+                  </ToolButton>
+                </div>
+                <BarDivider />
+              </>
+            )}
             {doc && !inWriter && (
               <>
                 <ToolButton label={t("Indice e allegati")} active={panelOpen} onClick={() => setPanelOpen((o) => !o)}>
@@ -936,7 +1097,7 @@ export default function App() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <button className="inline-flex h-8 max-w-56 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent" />
+                  <button data-tour="menu" className="inline-flex h-8 max-w-56 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent" />
                 }
               >
                 <span className="truncate">{inWriter ? writer.name : doc ? doc.name : "PDF Toolkit"}</span>
@@ -966,6 +1127,19 @@ export default function App() {
                     <DropdownMenuItem onClick={() => setRecent(clearRecent())}>{t("Cancella elenco")}</DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Zap /> {t("Azioni")}
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="min-w-52">
+                    {TASKS.map(({ task: k, title, icon: Icon }) => (
+                      <DropdownMenuItem key={k} onClick={() => startTask(k)}>
+                        <Icon /> {title}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem disabled={!doc || inWriter} onClick={addPdf}>
                   <FilePlus2 /> {t("Aggiungi PDF…")}
                 </DropdownMenuItem>
@@ -974,6 +1148,10 @@ export default function App() {
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled={!doc || inWriter} onClick={startCompare}>
                   <GitCompare /> {t("Confronta con…")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled={inWriter ? !writer : !doc} onClick={closeDocument}>
+                  <House /> {t("Chiudi e torna alla home")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem disabled={inWriter ? !writer.file : !doc} onClick={actions.current.save}>
@@ -989,12 +1167,52 @@ export default function App() {
                   <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setSigsOpen(true)}>
+                  <Signature /> {t("Le mie firme…")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={startTour}>
+                  <Compass /> {t("Tour dell'app")}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
                   <Settings /> {t("Impostazioni…")}
                   <DropdownMenuShortcut>⌘,</DropdownMenuShortcut>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {!doc && !inWriter && (
+              <>
+                <BarDivider />
+                <div data-tour="files" className="flex gap-0.5">
+                  <ToolButton label={t("Apri…")} shortcut="⌘O" onClick={open}>
+                    <FileUp />
+                  </ToolButton>
+                  <ToolButton label={t("Nuovo documento")} shortcut="⌘N" onClick={newDocument}>
+                    <FilePen />
+                  </ToolButton>
+                  <ToolButton label={t("Crea PDF da immagini…")} onClick={addImages}>
+                    <Images />
+                  </ToolButton>
+                </div>
+                <BarDivider />
+                <div data-tour="tasks" className="flex gap-0.5">
+                {TASKS.map(({ task: k, title, icon: Icon }) => (
+                  <button
+                    key={k}
+                    title={title}
+                    aria-label={title}
+                    onClick={() => startTask(k)}
+                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium text-foreground/80 outline-none transition-[background-color,color,scale] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:stroke-[1.75]"
+                  >
+                    <Icon /> <span className="hidden xl:inline">{title}</span>
+                  </button>
+                ))}
+                </div>
+                <BarDivider />
+                <ToolButton label={t("Più file insieme…")} onClick={() => setBatchOpen(true)}>
+                  <Layers />
+                </ToolButton>
+              </>
+            )}
             {doc && writer && (
               <>
                 <BarDivider />
@@ -1011,6 +1229,7 @@ export default function App() {
             {doc && !inWriter && (
               <>
                 <BarDivider />
+                <div data-tour="view" className="flex">
                 <Segmented
                   value={view}
                   onChange={(v) => (setView(v), setSelectedId(null))}
@@ -1019,6 +1238,7 @@ export default function App() {
                     { value: "pages", label: t("Pagine"), icon: <LayoutGrid /> },
                   ]}
                 />
+                </div>
                 <BarDivider />
                 <ToolButton label={t("Annulla")} shortcut="⌘Z" disabled={!history.canUndo} onClick={undo}>
                   <Undo2 />
@@ -1026,6 +1246,24 @@ export default function App() {
                 <ToolButton label={t("Ripeti")} shortcut="⇧⌘Z" disabled={!history.canRedo} onClick={redo}>
                   <Redo2 />
                 </ToolButton>
+                <BarDivider />
+                <div data-tour="actions" className="flex gap-0.5">
+                <ToolMenu
+                  label={t("Azioni")}
+                  icon={<Zap />}
+                  side="bottom"
+                  items={[...TASKS.map(({ task: k, title, icon: Icon }) => ({ label: title, icon: <Icon />, onPick: () => void startTask(k) })), { label: t("Confronta con…"), icon: <GitCompare />, onPick: startCompare }, { label: t("Più file insieme…"), icon: <Layers />, onPick: () => setBatchOpen(true) }]}
+                />
+                <ToolMenu
+                  label={t("Aggiungi")}
+                  icon={<FilePlus2 />}
+                  side="bottom"
+                  items={[
+                    { label: t("Aggiungi PDF…"), icon: <FilePlus2 />, onPick: addPdf },
+                    { label: t("Aggiungi immagini…"), icon: <Images />, onPick: addImages },
+                  ]}
+                />
+                </div>
               </>
             )}
           </FloatBar>
@@ -1039,7 +1277,7 @@ export default function App() {
                   <ToolButton label={t("Cerca")} shortcut="⌘F" active={!!search} onClick={() => setSearch((s) => (s ? null : { query: "", index: 0 }))}>
                     <Search />
                   </ToolButton>
-                  <ToolButton label={t("Timbri, intestazione e piè di pagina")} active={stampsOpen} onClick={() => setStampsOpen((o) => !o)}>
+                  <ToolButton label={t("Timbri, intestazione e piè di pagina")} active={stampsOpen} onClick={actions.current.toggleStamps}>
                     <Stamp />
                   </ToolButton>
                   <BarDivider />
@@ -1059,6 +1297,11 @@ export default function App() {
                   <BarDivider />
                 </>
               )}
+              {!inWriter && (
+                <ToolButton label={t("Stampa…")} shortcut="⌘P" disabled={busy} onClick={print}>
+                  <Printer />
+                </ToolButton>
+              )}
               {aiActive && (
                 <span className="float-enter flex h-8 items-center gap-1.5 px-2 text-xs font-medium text-ink" role="status">
                   <Sparkles className="size-4 animate-pulse stroke-[1.75]" /> {t("Assistente AI")}
@@ -1070,6 +1313,7 @@ export default function App() {
                 </Button>
               )}
               <Button
+                data-tour="save"
                 className="h-8 rounded-[10px] px-3.5"
                 onClick={actions.current.save}
                 disabled={busy}
@@ -1082,6 +1326,25 @@ export default function App() {
           </div>
         )}
 
+        {!doc && !inWriter && (
+          <div className="pointer-events-none absolute top-2.5 right-3">
+            <FloatBar>
+              <div data-tour="signatures" className="flex">
+                <ToolButton label={t("Le mie firme…")} onClick={() => setSigsOpen(true)}>
+                  <Signature />
+                </ToolButton>
+              </div>
+              <ToolButton label={t("Tour dell'app")} onClick={startTour}>
+                <Compass />
+              </ToolButton>
+              <BarDivider />
+              <ToolButton label={t("Impostazioni…")} shortcut="⌘," onClick={() => setSettingsOpen(true)}>
+                <Settings />
+              </ToolButton>
+            </FloatBar>
+          </div>
+        )}
+
         {!inWriter && doc && view === "editor" && search && (
           <div className="pointer-events-none absolute top-[60px] inset-x-0 flex justify-center">
             <SearchBar query={search.query} onQuery={(query) => setSearch({ query, index: 0 })} total={hits.length} index={Math.min(search.index, Math.max(0, hits.length - 1))} onStep={stepSearch} onClose={() => setSearch(null)} />
@@ -1090,7 +1353,7 @@ export default function App() {
 
         {!inWriter && doc && view === "editor" && (
           <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
-            <FloatBar role="toolbar" aria-label={t("Strumenti")}>
+            <FloatBar role="toolbar" aria-label={t("Strumenti")} data-tour="tools">
               {["select", "text", "date"].map(toolButton)}
               <BarDivider />
               {toolButton("sign")}
@@ -1162,7 +1425,32 @@ export default function App() {
           </div>
         )}
 
-        {!inWriter && doc && view === "editor" && stampsOpen && <StampsPanel stamps={work.stamps} onStamps={(s) => setWork((w) => ({ ...w, stamps: s }), "stamps")} onClose={() => setStampsOpen(false)} />}
+        {!inWriter && doc && task && (
+          <TaskPanel
+            key={task}
+            task={task}
+            busy={busy}
+            ghostscript={ghostscript}
+            pages={work.pages.length}
+            size={doc.sources.reduce((n, s) => n + s.bytes.length, 0)}
+            ocrPages={work.pages.filter((p) => work.ocr[p.id]).length}
+            signatures={loadSignatures()}
+            onNewSignature={() => setSigOpen(true)}
+            onManageSignatures={() => setSigsOpen(true)}
+            canRepeat={work.pages.length > 1 && work.items.some((i) => i.id === selectedId && i.kind === "image")}
+            onRepeat={() => selectedId && repeatOnAllPages(selectedId)}
+            onRedact={redactMatches}
+            onPlaceSignature={(src) => placeImage(src, 160, t("Clicca sulla pagina dove vuoi la firma"))}
+            onDate={tools.find((x) => x.key === "date")!.pick}
+            onText={tools.find((x) => x.key === "text")!.pick}
+            onAddPdf={addPdf}
+            onOcr={() => recognise(work.pages.map((p) => p.id))}
+            onCompress={compressAndSave}
+            onSave={() => setSaveOpen(true)}
+            onClose={() => setTask(null)}
+          />
+        )}
+        {!inWriter && doc && view === "editor" && stampsOpen && !task && <StampsPanel stamps={work.stamps} onStamps={(s) => setWork((w) => ({ ...w, stamps: s }), "stamps")} onClose={() => setStampsOpen(false)} />}
         {!inWriter && doc && panelOpen && (
           <SidePanel
             base={doc.sources[0]}
@@ -1179,6 +1467,9 @@ export default function App() {
         {!inWriter && doc && compare && compareSides && <ComparePanel leftName={doc.name} left={compareSides.left} rightName={compare.name} right={compareSides.right} onClose={() => setCompare(null)} />}
 
         <SignatureDialog open={sigOpen} onOpenChange={setSigOpen} onPick={(src) => placeImage(src, 160, t("Clicca sulla pagina dove vuoi la firma"))} />
+        <SignatureDialog manage open={sigsOpen} onOpenChange={setSigsOpen} />
+        <BatchDialog open={batchOpen} onOpenChange={setBatchOpen} />
+        {tour && <Tour name={tour} onDone={() => setTour(null)} />}
         <SaveDialog open={saveOpen} onOpenChange={setSaveOpen} options={options} onOptions={setOptions} onSave={saveAs} ghostscript={ghostscript} />
         <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} company={<CompanySettings />} />
         <PasswordDialog

@@ -1,14 +1,14 @@
-import { FilePen, FileText, FileUp, Images } from "lucide-react";
+import { FileText, FileUp } from "lucide-react";
 import type { Recent } from "@/lib/desktop";
 import { Button } from "@/components/ui/button";
 import { LogicalMark } from "@/components/LogicalMark";
 import { t } from "@/lib/i18n";
 
 // A blank sheet with a signature being written on it: the app's one authored motion moment.
-export function EmptyState({ onOpen, onImages, onWrite, recent, onRecent }: { onOpen: () => void; onImages: () => void; onWrite: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
+export function EmptyState({ onOpen, recent, onRecent }: { onOpen: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-10 px-6 py-24">
-      <button onClick={onOpen} aria-label={t("Apri un PDF")} className="paper group relative h-[340px] w-[264px] -rotate-2 rounded-[3px] outline-none transition-[rotate,scale] duration-(--duration-slow) ease-(--ease-smooth-out) hover:rotate-0 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none">
+      <button data-tour="drop" onClick={onOpen} aria-label={t("Apri un PDF")} className="paper group relative h-[340px] w-[264px] -rotate-2 rounded-[3px] outline-none transition-[rotate,scale] duration-(--duration-slow) ease-(--ease-smooth-out) hover:rotate-0 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none">
         <div className="absolute inset-x-7 top-9 space-y-2.5" aria-hidden>
           {[92, 100, 84, 96, 60].map((w, i) => (
             <div key={i} className="h-1.5 rounded-full bg-black/[0.07]" style={{ width: `${w}%` }} />
@@ -32,17 +32,9 @@ export function EmptyState({ onOpen, onImages, onWrite, recent, onRecent }: { on
         <p className="text-[13px] text-muted-foreground text-pretty">{t("Firma, compila e sistema i tuoi documenti. Tutto resta sul tuo computer.")}</p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button className="h-9 rounded-[10px] px-4" onClick={onOpen}>
-          <FileUp /> {t("Apri PDF")}
-        </Button>
-        <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={onImages}>
-          <Images /> {t("Crea da immagini")}
-        </Button>
-        <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={onWrite}>
-          <FilePen /> {t("Scrivi un documento")}
-        </Button>
-      </div>
+      <Button className="h-9 rounded-[10px] px-4" onClick={onOpen}>
+        <FileUp /> {t("Apri PDF")}
+      </Button>
 
       {recent.length > 0 && (
         <div className="flex w-full max-w-sm flex-col gap-1">

@@ -3,12 +3,14 @@ import { Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/men
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { Recent } from "@/lib/desktop";
 import { t } from "@/lib/i18n";
+import { TASKS, type Task } from "@/components/TaskPanel";
 
 export type MenuActions = {
   newDocument: () => void;
   open: () => void;
   openRecent: (path: string) => void;
   clearRecent: () => void;
+  close: () => void;
   addPdf: () => void;
   addImages: () => void;
   compare: () => void;
@@ -23,6 +25,10 @@ export type MenuActions = {
   togglePanel: () => void;
   toggleStamps: () => void;
   settings: () => void;
+  task: (k: Task) => void;
+  signatures: () => void;
+  batch: () => void;
+  tour: () => void;
 };
 
 // The native menu bar (HIG: every command reachable from it). Actions read through a getter so the menu,
@@ -41,6 +47,7 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
       await PredefinedMenuItem.new({ item: { About: { name: "PDF Toolkit" } }, text: t("Informazioni su PDF Toolkit") }),
       await sep(),
       await item(t("Impostazioni…"), (a) => a.settings(), "CmdOrCtrl+,"),
+      await item(t("Le mie firme…"), (a) => a.signatures()),
       await sep(),
       await PredefinedMenuItem.new({ item: "Services", text: t("Servizi") }),
       await sep(),
@@ -75,6 +82,7 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
       await sep(),
       await item(t("Stampa…"), (a) => a.print(), "CmdOrCtrl+P", doc),
       await sep(),
+      await item(t("Chiudi documento"), (a) => a.close(), undefined, state.canSave),
       await PredefinedMenuItem.new({ item: "CloseWindow", text: t("Chiudi finestra") }),
     ],
   });
@@ -113,12 +121,19 @@ export async function installMenu(get: () => MenuActions, state: { hasDoc: boole
     ],
   });
 
+  const actions = await Submenu.new({
+    text: t("Azioni"),
+    items: [...(await Promise.all(TASKS.map((x) => item(`${x.title}…`, (a) => a.task(x.task))))), await sep(), await item(t("Più file insieme…"), (a) => a.batch())],
+  });
+
   const windowMenu = await Submenu.new({
     text: t("Finestra"),
     items: [await PredefinedMenuItem.new({ item: "Minimize", text: t("Contrai") }), await PredefinedMenuItem.new({ item: "Maximize", text: t("Ridimensiona") })],
   });
 
-  const menu = await Menu.new({ items: [app, file, edit, view, windowMenu] });
+  const help = await Submenu.new({ text: t("Aiuto"), items: [await item(t("Tour dell'app"), (a) => a.tour())] });
+
+  const menu = await Menu.new({ items: [app, file, edit, view, actions, windowMenu, help] });
   await menu.setAsAppMenu();
 }
 

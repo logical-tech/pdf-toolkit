@@ -28,6 +28,7 @@ export const openExternal = (url: string) => (isTauri() ? openUrl(url) : Promise
 
 export const ghostscriptPath = () => (isTauri() ? invoke<string | null>("ghostscript_path") : Promise.resolve(null));
 export const convertPdfa = async (bytes: Uint8Array) => new Uint8Array(await invoke<number[]>("convert_pdfa", { bytes: Array.from(bytes) }));
+export const compressWithGhostscript = async (bytes: Uint8Array, strong: boolean) => new Uint8Array(await invoke<number[]>("compress_pdf", { bytes: Array.from(bytes), strong }));
 
 // Prints a finished PDF: its pages are rendered into a sheet that is the only thing visible while printing.
 export async function printPdf(bytes: Uint8Array) {

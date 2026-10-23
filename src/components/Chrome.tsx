@@ -108,7 +108,7 @@ export function OptionRow({ label, hint, children, htmlFor }: { label: string; h
 }
 
 // A tool button that opens a short menu of variants (shapes, stamps, field types).
-export function ToolMenu({ label, active, icon, items }: { label: string; active?: boolean; icon: ReactNode; items: { label: string; icon?: ReactNode; onPick: () => void }[] }) {
+export function ToolMenu({ label, active, icon, items, side = "top" }: { label: string; active?: boolean; icon: ReactNode; items: { label: string; icon?: ReactNode; onPick: () => void }[]; side?: "top" | "bottom" }) {
   return (
     <DropdownMenu>
       <Tooltip>
@@ -133,11 +133,11 @@ export function ToolMenu({ label, active, icon, items }: { label: string; active
           {icon}
           <span aria-hidden className="absolute right-1 bottom-1 size-0 border-t-[3px] border-l-[3px] border-t-transparent border-l-transparent border-r-[3px] border-b-[3px] border-r-current border-b-current opacity-50" />
         </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={8}>
+        <TooltipContent side={side} sideOffset={8}>
           {label}
         </TooltipContent>
       </Tooltip>
-      <DropdownMenuContent side="top" sideOffset={10} className="min-w-48">
+      <DropdownMenuContent side={side} sideOffset={10} className="min-w-48">
         {items.map((it) => (
           <DropdownMenuItem key={it.label} onClick={it.onPick}>
             {it.icon}

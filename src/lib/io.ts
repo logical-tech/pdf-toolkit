@@ -9,8 +9,8 @@ export type OpenedFile = { name: string; bytes: Uint8Array; path?: string };
 export type OutFile = { name: string; bytes: Uint8Array };
 
 const PDF_FILTER = [{ name: "PDF", extensions: ["pdf"] }];
-const OPEN_FILTER = [{ name: t("PDF o P7M firmato"), extensions: ["pdf", "p7m"] }];
-const OPEN_ANY_FILTER = [{ name: t("PDF, P7M o documento"), extensions: ["pdf", "p7m", "lptk"] }];
+const OPEN_FILTER = [{ name: t("PDF, P7M o fattura XML"), extensions: ["pdf", "p7m", "xml"] }];
+const OPEN_ANY_FILTER = [{ name: t("PDF, P7M, fattura XML o documento"), extensions: ["pdf", "p7m", "xml", "lptk"] }];
 
 // In the browser (vite dev without Tauri) fall back to <input type=file> and downloads.
 // `documents` also accepts the writer's .lptk files (the main "Apri").
@@ -20,7 +20,7 @@ export async function openPdf(documents = false): Promise<OpenedFile | null> {
     if (!path) return null;
     return { name: baseName(path), bytes: await readFile(path), path };
   }
-  const [file] = await pickFiles(documents ? "application/pdf,.p7m,.lptk" : "application/pdf,.p7m");
+  const [file] = await pickFiles(documents ? "application/pdf,.p7m,.xml,.lptk" : "application/pdf,.p7m,.xml");
   return file ? { name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) } : null;
 }
 
