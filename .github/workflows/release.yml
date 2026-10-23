@@ -34,7 +34,9 @@ jobs:
 
       - name: Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
+        # Without man-db's trigger the install takes about a minute instead of thirteen.
         run: |
+          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
