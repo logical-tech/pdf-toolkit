@@ -1,0 +1,482 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T11:18:03+00:00",
+  "title": "Design System: PDF Toolkit",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Desk Grey",
+        "canonical": "oklch(0.925 0 0)",
+        "dark": "oklch(0.19 0 0)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#ffffff",
+        "dark": "#ffffff with filter: brightness(0.92)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "float": {
+        "role": "neutral",
+        "displayName": "Clear Glass",
+        "canonical": "oklch(0.995 0 0 / 0.78)",
+        "dark": "oklch(0.27 0.004 264 / 0.74)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 264)",
+          "oklch(0.27 0.006 264)",
+          "oklch(0.39 0.006 264)",
+          "oklch(0.51 0.006 264)",
+          "oklch(0.63 0.006 264)",
+          "oklch(0.75 0.006 264)",
+          "oklch(0.86 0.006 264)",
+          "oklch(0.95 0.006 264)"
+        ]
+      },
+      "float-solid": {
+        "role": "neutral",
+        "displayName": "Frosted Solid",
+        "canonical": "oklch(0.99 0 0)",
+        "dark": "oklch(0.26 0.004 264)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 264)",
+          "oklch(0.27 0.006 264)",
+          "oklch(0.39 0.006 264)",
+          "oklch(0.51 0.006 264)",
+          "oklch(0.63 0.006 264)",
+          "oklch(0.75 0.006 264)",
+          "oklch(0.86 0.006 264)",
+          "oklch(0.95 0.006 264)"
+        ]
+      },
+      "float-edge": {
+        "role": "neutral",
+        "displayName": "Hairline Edge",
+        "canonical": "oklch(0 0 0 / 0.08)",
+        "dark": "oklch(1 0 0 / 0.1)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "oklch(0.2 0.004 264)",
+        "dark": "oklch(0.96 0.002 264)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 264)",
+          "oklch(0.27 0.006 264)",
+          "oklch(0.39 0.006 264)",
+          "oklch(0.51 0.006 264)",
+          "oklch(0.63 0.006 264)",
+          "oklch(0.75 0.006 264)",
+          "oklch(0.86 0.006 264)",
+          "oklch(0.95 0.006 264)"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Pencil Grey",
+        "canonical": "oklch(0.46 0.006 264)",
+        "dark": "oklch(0.72 0.006 264)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 264)",
+          "oklch(0.27 0.006 264)",
+          "oklch(0.39 0.006 264)",
+          "oklch(0.51 0.006 264)",
+          "oklch(0.63 0.006 264)",
+          "oklch(0.75 0.006 264)",
+          "oklch(0.86 0.006 264)",
+          "oklch(0.95 0.006 264)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Smudge",
+        "canonical": "oklch(0 0 0 / 0.05)",
+        "dark": "oklch(1 0 0 / 0.06)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "accent": {
+        "role": "neutral",
+        "displayName": "Smudge (hover)",
+        "canonical": "oklch(0 0 0 / 0.06)",
+        "dark": "oklch(1 0 0 / 0.09)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(0 0 0 / 0.1)",
+        "dark": "oklch(1 0 0 / 0.1)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "input": {
+        "role": "neutral",
+        "displayName": "Field Edge",
+        "canonical": "oklch(0 0 0 / 0.14)",
+        "dark": "oklch(1 0 0 / 0.16)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.39 0 0)",
+          "oklch(0.51 0 0)",
+          "oklch(0.63 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.86 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Signature Ink",
+        "canonical": "oklch(0.46 0.2 266)",
+        "dark": "oklch(0.62 0.17 264)",
+        "tonalRamp": [
+          "oklch(0.15 0.16 266)",
+          "oklch(0.27 0.16 266)",
+          "oklch(0.39 0.16 266)",
+          "oklch(0.51 0.16 266)",
+          "oklch(0.63 0.16 266)",
+          "oklch(0.75 0.16 266)",
+          "oklch(0.86 0.16 266)",
+          "oklch(0.95 0.16 266)"
+        ]
+      },
+      "ink-soft": {
+        "role": "primary",
+        "displayName": "Ink Wash",
+        "canonical": "oklch(0.46 0.2 266 / 0.12)",
+        "dark": "oklch(0.62 0.17 264 / 0.2)",
+        "tonalRamp": [
+          "oklch(0.15 0.16 266)",
+          "oklch(0.27 0.16 266)",
+          "oklch(0.39 0.16 266)",
+          "oklch(0.51 0.16 266)",
+          "oklch(0.63 0.16 266)",
+          "oklch(0.75 0.16 266)",
+          "oklch(0.86 0.16 266)",
+          "oklch(0.95 0.16 266)"
+        ]
+      },
+      "ink-foreground": {
+        "role": "primary",
+        "displayName": "Ink Foreground",
+        "canonical": "oklch(0.99 0 0)",
+        "dark": "oklch(0.15 0.02 264)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 264)",
+          "oklch(0.27 0.006 264)",
+          "oklch(0.39 0.006 264)",
+          "oklch(0.51 0.006 264)",
+          "oklch(0.63 0.006 264)",
+          "oklch(0.75 0.006 264)",
+          "oklch(0.86 0.006 264)",
+          "oklch(0.95 0.006 264)"
+        ]
+      },
+      "ring": {
+        "role": "primary",
+        "displayName": "Ink Focus Ring",
+        "canonical": "oklch(0.46 0.2 266 / 0.55)",
+        "dark": "oklch(0.62 0.17 264 / 0.6)",
+        "tonalRamp": [
+          "oklch(0.15 0.16 266)",
+          "oklch(0.27 0.16 266)",
+          "oklch(0.39 0.16 266)",
+          "oklch(0.51 0.16 266)",
+          "oklch(0.63 0.16 266)",
+          "oklch(0.75 0.16 266)",
+          "oklch(0.86 0.16 266)",
+          "oklch(0.95 0.16 266)"
+        ]
+      },
+      "destructive": {
+        "role": "error",
+        "displayName": "Correction Red",
+        "canonical": "oklch(0.56 0.21 27)",
+        "dark": "oklch(0.7 0.19 22)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 27)",
+          "oklch(0.27 0.17 27)",
+          "oklch(0.39 0.17 27)",
+          "oklch(0.51 0.17 27)",
+          "oklch(0.63 0.17 27)",
+          "oklch(0.75 0.17 27)",
+          "oklch(0.86 0.17 27)",
+          "oklch(0.95 0.17 27)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Empty-state headline only."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel and dialog headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Panel copy, form labels, menu text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, file name, segmented options, numeric readouts (tabular)."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Page numbers and field hints."
+      }
+    },
+    "shadows": [
+      {
+        "name": "paper",
+        "value": "0 1px 2px oklch(0 0 0 / 0.08), 0 6px 24px -6px oklch(0 0 0 / 0.16)",
+        "dark": "0 0 0 1px oklch(1 0 0 / 0.07), 0 1px 2px oklch(0 0 0 / 0.5), 0 14px 36px -6px oklch(0 0 0 / 0.75)",
+        "purpose": "Page sheets and thumbnails only."
+      },
+      {
+        "name": "float",
+        "value": "0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2)",
+        "dark": "0 0 0 0.5px oklch(1 0 0 / 0.12), 0 2px 4px oklch(0 0 0 / 0.3), 0 12px 36px -8px oklch(0 0 0 / 0.65)",
+        "purpose": "Every floating capsule and the floating panel."
+      },
+      {
+        "name": "segmented-thumb",
+        "value": "0 1px 2px oklch(0 0 0 / 0.12), 0 0 0 0.5px oklch(0 0 0 / 0.06)",
+        "purpose": "Sliding highlight inside the segmented control."
+      }
+    ],
+    "materials": [
+      {
+        "name": "float-glass",
+        "value": "background: var(--float); backdrop-filter: blur(24px) saturate(1.6)",
+        "purpose": "Compact capsules; solid float-solid under prefers-reduced-transparency."
+      },
+      {
+        "name": "float-panel",
+        "value": "background: color-mix(in oklch, var(--float-solid) 95%, transparent); backdrop-filter: blur(24px) saturate(1.4)",
+        "purpose": "Floating surfaces that carry text or forms."
+      },
+      {
+        "name": "paper-dark-filter",
+        "value": "filter: brightness(0.92)",
+        "purpose": "Dims white sheets in dark mode."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-quick",
+        "value": "150ms",
+        "purpose": "Hover, colour and press transitions."
+      },
+      {
+        "name": "duration-fast",
+        "value": "250ms",
+        "purpose": "Floating-layer entrance, segmented thumb slide."
+      },
+      {
+        "name": "duration-slow",
+        "value": "400ms",
+        "purpose": "Empty-state sheet straightening on hover."
+      },
+      {
+        "name": "ease-smooth-out",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Default easing for entrances and slides."
+      },
+      {
+        "name": "float-in",
+        "value": "from { opacity: 0; transform: translateY(6px) scale(0.97); filter: blur(2px) }",
+        "purpose": "Capsules and panels rise in; disabled under reduced motion."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.96)",
+        "purpose": "Active state of buttons and swatches."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Floating Tool Capsule",
+      "kind": "nav",
+      "refersTo": "float-bar",
+      "description": "Bottom-centre glass capsule of tools, grouped by hairline dividers; the active tool wears the ink wash.",
+      "html": "<div class=\"ds-bar\" role=\"toolbar\"><button class=\"ds-tool is-active\" aria-label=\"Seleziona\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 4l7 17 2.5-7.5L21 11z\"/></svg></button><button class=\"ds-tool\" aria-label=\"Testo\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7V4h16v3M9 20h6M12 4v16\"/></svg></button><div class=\"ds-div\"></div><button class=\"ds-tool\" aria-label=\"Firma\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z\"/></svg></button><button class=\"ds-tool\" aria-label=\"Spunta\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6L9 17l-5-5\"/></svg></button></div>",
+      "css": ".ds-bar { display: inline-flex; align-items: center; gap: 2px; padding: 4px; border-radius: 14px; background: var(--float, oklch(0.995 0 0 / 0.78)); box-shadow: var(--float-shadow, 0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2)); backdrop-filter: blur(24px) saturate(1.6); -webkit-backdrop-filter: blur(24px) saturate(1.6); } .ds-div { width: 1px; height: 20px; margin: 0 4px; background: var(--border, oklch(0 0 0 / 0.1)); } .ds-tool { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: color-mix(in oklch, var(--foreground, oklch(0.2 0.004 264)) 80%, transparent); cursor: default; outline: none; transition: background-color 150ms, color 150ms, scale 150ms; } .ds-tool:hover { background: var(--accent, oklch(0 0 0 / 0.06)); color: var(--foreground, oklch(0.2 0.004 264)); } .ds-tool:focus-visible { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); } .ds-tool:active { scale: 0.96; } .ds-tool.is-active, .ds-tool.is-active:hover { background: var(--ink-soft, oklch(0.46 0.2 266 / 0.12)); color: var(--ink, oklch(0.46 0.2 266)); }"
+    },
+    {
+      "name": "Tool Button",
+      "kind": "button",
+      "refersTo": "tool-button",
+      "description": "32px icon button with 10px corners; Smudge on hover, ink wash when active.",
+      "html": "<button class=\"ds-tool\" aria-label=\"Firma\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z\"/></svg></button> <button class=\"ds-tool is-active\" aria-label=\"Testo\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7V4h16v3M9 20h6M12 4v16\"/></svg></button>",
+      "css": ".ds-tool { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: color-mix(in oklch, var(--foreground, oklch(0.2 0.004 264)) 80%, transparent); cursor: default; outline: none; transition: background-color 150ms, color 150ms, scale 150ms; } .ds-tool:hover { background: var(--accent, oklch(0 0 0 / 0.06)); color: var(--foreground, oklch(0.2 0.004 264)); } .ds-tool:focus-visible { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); } .ds-tool:active { scale: 0.96; } .ds-tool.is-active, .ds-tool.is-active:hover { background: var(--ink-soft, oklch(0.46 0.2 266 / 0.12)); color: var(--ink, oklch(0.46 0.2 266)); }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "nav",
+      "refersTo": "segmented",
+      "description": "Modifica/Pagine switch with a sliding white thumb.",
+      "html": "<div class=\"ds-seg\" role=\"tablist\"><span class=\"ds-seg-thumb\"></span><button role=\"tab\" aria-selected=\"true\" class=\"ds-seg-opt is-on\">Modifica</button><button role=\"tab\" class=\"ds-seg-opt\">Pagine</button></div>",
+      "css": ".ds-seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 2px; border-radius: 10px; background: var(--muted, oklch(0 0 0 / 0.05)); font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", system-ui, sans-serif; } .ds-seg-thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc((100% - 4px) / 2); border-radius: 8px; background: var(--card, oklch(0.99 0 0)); box-shadow: 0 1px 2px oklch(0 0 0 / 0.12), 0 0 0 0.5px oklch(0 0 0 / 0.06); transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1); } .ds-seg-opt { position: relative; z-index: 1; height: 28px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--muted-foreground, oklch(0.46 0.006 264)); outline: none; transition: color 150ms; } .ds-seg-opt:hover, .ds-seg-opt.is-on { color: var(--foreground, oklch(0.2 0.004 264)); } .ds-seg-opt:focus-visible { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); }"
+    },
+    {
+      "name": "Save Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one ink-filled control: commits the document.",
+      "html": "<button class=\"ds-btn-primary\">Salva</button>",
+      "css": ".ds-btn-primary { height: 32px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--ink, oklch(0.46 0.2 266)); color: var(--ink-foreground, oklch(0.99 0 0)); font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", system-ui, sans-serif; font-size: 13px; font-weight: 500; outline: none; transition: background-color 150ms, scale 150ms; } .ds-btn-primary:hover { background: color-mix(in oklch, var(--ink, oklch(0.46 0.2 266)) 80%, transparent); } .ds-btn-primary:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring, oklch(0.46 0.2 266 / 0.55)) 50%, transparent); } .ds-btn-primary:active { scale: 0.96; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Text control in the floating layer: file menu, zoom readout, page actions.",
+      "html": "<button class=\"ds-btn-ghost\">form.pdf</button>",
+      "css": ".ds-btn-ghost { height: 32px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; color: var(--foreground, oklch(0.2 0.004 264)); font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", system-ui, sans-serif; font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; outline: none; transition: background-color 150ms; } .ds-btn-ghost:hover { background: var(--accent, oklch(0 0 0 / 0.06)); } .ds-btn-ghost:focus-visible { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); }"
+    },
+    {
+      "name": "Contextual Item Bar",
+      "kind": "custom",
+      "refersTo": "float-bar",
+      "description": "Capsule over the selected mark: swatches, angle field, delete (red only on hover).",
+      "html": "<div class=\"ds-bar\"><button class=\"ds-sw is-on\" style=\"background:#000\" aria-label=\"Nero\"></button><button class=\"ds-sw\" style=\"background:#1e3a9a\" aria-label=\"Blu\"></button><button class=\"ds-sw\" style=\"background:#c0392b\" aria-label=\"Rosso\"></button><div class=\"ds-div\"></div><label class=\"ds-angle\"><input value=\"0\" aria-label=\"Rotazione\"><span>&deg;</span></label><div class=\"ds-div\"></div><button class=\"ds-tool ds-del\" aria-label=\"Elimina\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14\"/></svg></button></div>",
+      "css": ".ds-bar { display: inline-flex; align-items: center; gap: 2px; padding: 4px; border-radius: 14px; background: var(--float, oklch(0.995 0 0 / 0.78)); box-shadow: var(--float-shadow, 0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2)); backdrop-filter: blur(24px) saturate(1.6); -webkit-backdrop-filter: blur(24px) saturate(1.6); } .ds-div { width: 1px; height: 20px; margin: 0 4px; background: var(--border, oklch(0 0 0 / 0.1)); } .ds-tool { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border: 0; border-radius: 10px; background: transparent; color: color-mix(in oklch, var(--foreground, oklch(0.2 0.004 264)) 80%, transparent); cursor: default; outline: none; transition: background-color 150ms, color 150ms, scale 150ms; } .ds-tool:hover { background: var(--accent, oklch(0 0 0 / 0.06)); color: var(--foreground, oklch(0.2 0.004 264)); } .ds-tool:focus-visible { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); } .ds-tool:active { scale: 0.96; } .ds-tool.is-active, .ds-tool.is-active:hover { background: var(--ink-soft, oklch(0.46 0.2 266 / 0.12)); color: var(--ink, oklch(0.46 0.2 266)); } .ds-sw { width: 20px; height: 20px; margin: 0 2px; border: 0; border-radius: 9999px; box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.25); outline: 2px solid transparent; outline-offset: 2px; transition: outline-color 150ms, scale 150ms; } .ds-sw:hover { outline-color: var(--border, oklch(0 0 0 / 0.1)); } .ds-sw.is-on { outline-color: var(--ink, oklch(0.46 0.2 266)); } .ds-sw:active { scale: 0.96; } .ds-angle { display: flex; align-items: center; height: 32px; padding: 0 8px; border-radius: 10px; background: var(--muted, oklch(0 0 0 / 0.05)); font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", system-ui, sans-serif; font-size: 13px; } .ds-angle:focus-within { box-shadow: 0 0 0 2px var(--ring, oklch(0.46 0.2 266 / 0.55)); } .ds-angle input { width: 2ch; border: 0; background: transparent; text-align: right; font: inherit; font-variant-numeric: tabular-nums; outline: none; } .ds-angle span { color: var(--muted-foreground, oklch(0.46 0.006 264)); } .ds-del:hover { background: color-mix(in oklch, var(--destructive, oklch(0.56 0.21 27)) 10%, transparent); color: var(--destructive, oklch(0.56 0.21 27)); }"
+    },
+    {
+      "name": "Selected Mark on Paper",
+      "kind": "custom",
+      "refersTo": "paper",
+      "description": "Paper sheet with a selected text mark: 1.5px ink outline, rotate handle on a stem, plus a tinted fillable field.",
+      "html": "<div class=\"ds-paper\"><span class=\"ds-field\"></span><div class=\"ds-mark\"><span class=\"ds-stem\"></span><span class=\"ds-rot\"></span>Mario Rossi</div></div>",
+      "css": ".ds-paper { position: relative; width: 280px; height: 160px; background: #fff; box-shadow: var(--paper-shadow, 0 1px 2px oklch(0 0 0 / 0.08), 0 6px 24px -6px oklch(0 0 0 / 0.16)); } .ds-field { position: absolute; left: 24px; top: 24px; width: 160px; height: 22px; border-radius: 2px; background: oklch(0.46 0.2 266 / 0.08); transition: background-color 150ms; } .ds-field:hover { background: oklch(0.46 0.2 266 / 0.14); } .ds-mark { position: absolute; left: 80px; top: 104px; padding: 0 2px; font: 16px Helvetica, Arial, sans-serif; color: #000; outline: 1.5px solid var(--ink, oklch(0.46 0.2 266)); } .ds-stem { position: absolute; top: -24px; left: 50%; width: 1px; height: 16px; background: var(--ink, oklch(0.46 0.2 266)); } .ds-rot { position: absolute; top: -32px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border: 1.5px solid var(--ink, oklch(0.46 0.2 266)); border-radius: 9999px; background: #fff; box-sizing: border-box; cursor: grab; }"
+    },
+    {
+      "name": "Floating Panel",
+      "kind": "card",
+      "refersTo": "float-panel",
+      "description": "Text-bearing floating panel (stamps) in the 95% solid material.",
+      "html": "<aside class=\"ds-panel\"><h2>Timbri su tutte le pagine</h2><label><input type=\"checkbox\" checked> Numeri di pagina</label><p>{n} = pagina, {total} = totale</p></aside>",
+      "css": ".ds-panel { width: 288px; padding: 16px; display: grid; gap: 12px; border-radius: 16px; background: color-mix(in oklch, var(--float-solid, oklch(0.99 0 0)) 95%, transparent); box-shadow: var(--float-shadow, 0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2)); backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", system-ui, sans-serif; font-size: 13px; color: var(--foreground, oklch(0.2 0.004 264)); } .ds-panel h2 { margin: 0; font-size: 13px; font-weight: 600; } .ds-panel label { display: flex; gap: 8px; align-items: center; } .ds-panel input { accent-color: var(--ink, oklch(0.46 0.2 266)); } .ds-panel p { margin: 0; font-size: 12px; color: var(--muted-foreground, oklch(0.46 0.006 264)); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Paper on the Desk",
+    "overview": "The document is the only thing at rest. A neutral desk-grey canvas holds white paper sheets that cast a soft, real shadow, and every control lives in a separate floating layer of translucent rounded capsules hovering above the work, the way Figma floats its tools over a design. There is no full-width header bar and no docked side panel framing the page; the window chrome is the canvas itself.\n\nThe floating layer is monochrome, set in the system font at macOS density (13px), so the controls read as instruments rather than decoration. One colour carries meaning: the blue of a ballpoint signature. It marks only what the user is acting on (selection, handles, the active tool, focus) and the one action that commits work (Save). Everything else is greys and alpha over grey.\n\nLight and dark are equal citizens. In dark mode the canvas goes near-black, capsules become smoked glass, and the white sheets are dimmed slightly so they do not glow in a dark room; the paper stays paper.",
+    "keyCharacteristics": [
+      "Desk-grey canvas, white paper sheets with layered ambient shadow.",
+      "Controls float in translucent glass capsules (blur 24px, 0.5px hairline edge, layered soft shadow), anchored to window corners and the bottom centre.",
+      "One accent, signature ink blue, rationed to selection, active state, focus and Save.",
+      "System font throughout, 13px base, medium weight for controls, tabular numbers for every count, size and angle.",
+      "Concentric rounding: 14px capsule, 4px padding, 10px buttons inside.",
+      "Motion is short and soft: things rise in with a slight blur and settle on a smooth-out curve."
+    ],
+    "rules": [
+      {
+        "name": "The One Pen Rule",
+        "body": "Signature Ink is reserved for selection, handles, the active tool, focus, drop targets and Save. If something is ink-coloured, the user is either touching it or about to commit it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Alpha-Over-Grey Rule",
+        "body": "UI neutrals are black (light) or white (dark) at low alpha, not fixed greys, so hover and fill states read the same over canvas, glass or paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Native Density Rule",
+        "body": "The base is 13px, the macOS body size. Hierarchy comes from weight (400/500/600) and grey level, not from a size ramp.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every number that changes (zoom, size, angle, page index) uses tabular figures so controls never jitter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Three Planes Rule",
+        "body": "Canvas, paper, float. A new surface joins one of the three planes and takes that plane's shadow; it does not invent a fourth.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Glass Needs a Floor Rule",
+        "body": "Translucent float material is for compact capsules. Surfaces that carry paragraphs or forms (the stamps panel) use the 95% solid panel material so text reads as one tone over paper or canvas; under prefers-reduced-transparency capsules go fully solid.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put every new control in a Floating Capsule or the Floating Panel over the canvas, anchored to a window corner, the bottom centre, or the element it acts on.",
+      "Do keep capsules concentric: 14px outer radius, 4px padding, 10px controls.",
+      "Do use Signature Ink only for selection, handles, the active tool, focus, drop targets and the commit action.",
+      "Do use the system font at 13px with weight for hierarchy and tabular figures for every changing number.",
+      "Do give floating surfaces the float-enter rise (250ms, cubic-bezier(0.22, 1, 0.36, 1)) and honour reduced motion and reduced transparency.",
+      "Do dim paper (brightness 0.92) rather than greying it in dark mode."
+    ],
+    "donts": [
+      "Don't add a full-width header bar or dock panels to the window edges; the canvas runs edge to edge.",
+      "Don't introduce a second accent colour or use ink for decoration, headings or idle states.",
+      "Don't put translucent glass under paragraphs or forms; use the panel material.",
+      "Don't use hard or offset shadows, or a fourth shadow plane.",
+      "Don't use paper white as a UI surface; white belongs to the page.",
+      "Don't show destructive red at rest; it appears on hover of a delete control only."
+    ]
+  }
+}

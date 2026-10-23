@@ -1,0 +1,84 @@
+# Builds the app for every platform on a version tag (v0.2.0, ...), signs the update bundles and
+# drafts a GitHub release with latest.json. Publishing the draft is what makes installed apps update.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            args: ""
+          - platform: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            args: ""
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      # Ghostscript ships inside the app for PDF/A export; it only changes with its pinned version.
+      - name: Cache Ghostscript
+        id: gs-cache
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/binaries
+          key: ghostscript-10.08.0-${{ matrix.target }}-${{ hashFiles('scripts/build-ghostscript.sh', 'scripts/fetch-ghostscript-windows.sh') }}
+      - name: Ghostscript (build from source)
+        if: steps.gs-cache.outputs.cache-hit != 'true' && matrix.platform != 'windows-latest'
+        run: scripts/build-ghostscript.sh ${{ matrix.target }}
+      - name: Ghostscript (official Windows build)
+        if: steps.gs-cache.outputs.cache-hit != 'true' && matrix.platform == 'windows-latest'
+        shell: bash
+        run: scripts/fetch-ghostscript-windows.sh
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: v__VERSION__
+          releaseName: PDF Toolkit v__VERSION__
+          releaseBody: Scarica il file per il tuo sistema qui sotto. Le app già installate si aggiornano da sole.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

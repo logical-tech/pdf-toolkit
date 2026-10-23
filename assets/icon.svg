@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="#2b47cf"/>
+  <g transform="rotate(-7 512 520)">
+    <rect x="300" y="196" width="424" height="560" rx="22" fill="#000" opacity="0.22" transform="translate(10 18)"/>
+    <rect x="300" y="196" width="424" height="560" rx="22" fill="#ffffff"/>
+    <rect x="352" y="262" width="250" height="18" rx="9" fill="#d9dbe3"/>
+    <rect x="352" y="306" width="320" height="18" rx="9" fill="#d9dbe3"/>
+    <rect x="352" y="350" width="290" height="18" rx="9" fill="#d9dbe3"/>
+    <rect x="348" y="388" width="200" height="30" rx="4" fill="#ffe14d" opacity="0.85"/>
+    <rect x="352" y="394" width="190" height="18" rx="9" fill="#c9ccd6"/>
+    <rect x="352" y="438" width="240" height="18" rx="9" fill="#d9dbe3"/>
+    <path d="M366 640c18-40 40-66 51-55 13 13-22 70-11 74 13 4 28-55 41-55 11 0-7 48 4 48 13 0 17-33 28-33 9 0 2 26 11 26 11 0 17-22 28-22s7 18 18 18c15 0 26-17 41-22 17-6 37-4 55 2" fill="none" stroke="#1d3fa8" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="352" y="684" width="320" height="5" rx="2.5" fill="#b8bcc8"/>
+  </g>
+</svg>

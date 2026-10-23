@@ -1,0 +1,270 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --color-canvas: var(--canvas);
+  --color-float: var(--float);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-soft: var(--ink-soft);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* The page sheet is the only thing at rest: a desk-grey canvas, white paper, and a floating
+   layer of controls. One accent, the blue of a ballpoint signature. */
+:root {
+  --canvas: oklch(0.925 0 0);
+  --paper-shadow: 0 1px 2px oklch(0 0 0 / 0.08), 0 6px 24px -6px oklch(0 0 0 / 0.16);
+  --paper-filter: none;
+  --float: oklch(0.995 0 0 / 0.78);
+  --float-solid: oklch(0.99 0 0);
+  --float-edge: oklch(0 0 0 / 0.08);
+  --float-shadow: 0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2);
+  --ink: oklch(0.46 0.2 266);
+  --ink-foreground: oklch(0.99 0 0);
+  --ink-soft: oklch(0.46 0.2 266 / 0.12);
+
+  --background: var(--canvas);
+  --foreground: oklch(0.2 0.004 264);
+  --card: var(--float-solid);
+  --card-foreground: var(--foreground);
+  --popover: var(--float-solid);
+  --popover-foreground: var(--foreground);
+  --primary: var(--ink);
+  --primary-foreground: var(--ink-foreground);
+  --secondary: oklch(0 0 0 / 0.06);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0 0 0 / 0.05);
+  --muted-foreground: oklch(0.46 0.006 264);
+  --accent: oklch(0 0 0 / 0.06);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.56 0.21 27);
+  --border: oklch(0 0 0 / 0.1);
+  --input: oklch(0 0 0 / 0.14);
+  --ring: oklch(0.46 0.2 266 / 0.55);
+  --radius: 0.625rem;
+
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-slow: 400ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  --canvas: oklch(0.19 0 0);
+  --paper-shadow: 0 0 0 1px oklch(1 0 0 / 0.07), 0 1px 2px oklch(0 0 0 / 0.5), 0 14px 36px -6px oklch(0 0 0 / 0.75);
+  /* HIG: soften white sheets so they don't glow in a dark room */
+  --paper-filter: brightness(0.92);
+  --float: oklch(0.27 0.004 264 / 0.74);
+  --float-solid: oklch(0.26 0.004 264);
+  --float-edge: oklch(1 0 0 / 0.1);
+  --float-shadow: 0 0 0 0.5px oklch(1 0 0 / 0.12), 0 2px 4px oklch(0 0 0 / 0.3), 0 12px 36px -8px oklch(0 0 0 / 0.65);
+  --ink: oklch(0.62 0.17 264);
+  --ink-foreground: oklch(0.15 0.02 264);
+  --ink-soft: oklch(0.62 0.17 264 / 0.2);
+
+  --foreground: oklch(0.96 0.002 264);
+  --secondary: oklch(1 0 0 / 0.08);
+  --muted: oklch(1 0 0 / 0.06);
+  --muted-foreground: oklch(0.72 0.006 264);
+  --accent: oklch(1 0 0 / 0.09);
+  --destructive: oklch(0.7 0.19 22);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.16);
+  --ring: oklch(0.62 0.17 264 / 0.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 13px; /* macOS body size */
+    user-select: none;
+  }
+  ::selection {
+    background: var(--ink-soft);
+  }
+  input,
+  textarea,
+  [contenteditable] {
+    user-select: text;
+    caret-color: var(--ink);
+  }
+}
+
+@layer components {
+  /* The floating functional layer: translucent capsule over the canvas (HIG regular glass). */
+  .float-surface {
+    background: var(--float);
+    box-shadow: var(--float-shadow);
+    backdrop-filter: blur(24px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  }
+  /* Large panels carry text, so they take a thicker material that reads as one tone over paper or canvas. */
+  .float-panel {
+    background: color-mix(in oklch, var(--float-solid) 95%, transparent);
+    box-shadow: var(--float-shadow);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .float-surface {
+      background: var(--float-solid);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+  .paper {
+    background: white;
+    box-shadow: var(--paper-shadow);
+    filter: var(--paper-filter);
+  }
+
+  /* Floating panels and contextual bars rise in with a soft blur, and leave faster than they come. */
+  .float-enter {
+    animation: float-in var(--duration-fast) var(--ease-smooth-out);
+  }
+  @keyframes float-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+      filter: blur(2px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .float-enter {
+      animation: none;
+    }
+  }
+
+  .canvas-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.5 0 0 / 0.35) transparent;
+  }
+}
+
+.signature-stroke {
+  stroke-dasharray: 290;
+  stroke-dashoffset: 290;
+  animation: sign 1.6s 0.3s var(--ease-smooth-out) forwards;
+}
+@keyframes sign {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signature-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* pdf.js text layer (from pdf_viewer.css, trimmed): transparent text positioned over the canvas so it can be selected. */
+.textLayer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  line-height: 1;
+  text-align: initial;
+  transform-origin: 0 0;
+  forced-color-adjust: none;
+  z-index: 0;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+.textLayer .markedContent {
+  display: contents;
+}
+.textLayer span[role="img"] {
+  user-select: none;
+  cursor: default;
+}
+.textLayer ::selection {
+  background: oklch(0.55 0.2 266 / 0.3);
+}
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+
+/* Printing shows only the rendered pages, one per sheet. */
+#print-sheet {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 0;
+  }
+  body > *:not(#print-sheet) {
+    display: none !important;
+  }
+  #print-sheet {
+    display: block;
+  }
+  #print-sheet img {
+    display: block;
+    width: 100%;
+    height: auto;
+    break-after: page;
+  }
+}
