@@ -78,7 +78,7 @@ export function ComparePanel({ leftName, left, rightName, right, onClose }: { le
       <div className="mx-auto flex w-fit flex-col gap-10 px-8 pt-8 pb-24">
         {rows.map((r, i) => (
           <div key={i} className="flex items-start gap-6">
-            <span className={cn("w-16 pt-2 text-right text-xs tabular-nums", r.changed ? "font-medium text-destructive" : "text-muted-foreground")}>
+            <span className={cn("w-16 pt-2 text-right font-mono text-xs tabular-nums", r.changed ? "font-medium text-destructive" : "text-muted-foreground")}>
               {i + 1}
               {r.changed ? <span className="block">{(r.changed * 100).toFixed(1)}%</span> : null}
             </span>

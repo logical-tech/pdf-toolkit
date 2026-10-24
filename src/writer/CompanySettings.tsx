@@ -22,7 +22,7 @@ const FIELDS: { key: TextKey; label: string; placeholder: string; hint?: string 
 ];
 
 const fieldClass =
-  "h-8 w-56 min-w-0 rounded-[10px] bg-muted px-2.5 text-[13px] outline-none transition-[box-shadow] duration-150 placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring";
+  "h-8 w-56 min-w-0 rounded-[10px] border border-input bg-field px-2.5 text-[13px] outline-none transition-[box-shadow] duration-150 placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring";
 
 /** Company data used by headers, payment blocks and templates. Saved on this computer only. */
 export function CompanySettings() {
@@ -47,11 +47,11 @@ export function CompanySettings() {
           <div className="flex items-center gap-2">
             {company.logo && <img src={company.logo} alt="" className="h-8 max-w-24 rounded-[4px] bg-white object-contain p-0.5" />}
             {company.logo && (
-              <Button variant="ghost" className="h-8 rounded-[10px] px-3" onClick={() => saveCompany({ logo: undefined })}>
+              <Button variant="ghost" className="h-8 rounded-full px-3" onClick={() => saveCompany({ logo: undefined })}>
                 {t("Rimuovi")}
               </Button>
             )}
-            <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={chooseLogo}>
+            <Button variant="secondary" className="h-8 rounded-full px-3" onClick={chooseLogo}>
               <ImageUp /> {company.logo ? t("Cambia") : t("Scegli")}
             </Button>
           </div>

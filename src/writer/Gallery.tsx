@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { FilePlus2 } from "lucide-react";
+import { Headline } from "@/components/Chrome";
 import { t } from "@/lib/i18n";
 import { useCompany } from "./company";
 import { DEFAULT_MARGINS, A4_MM } from "./model";
@@ -17,8 +18,8 @@ export function Gallery({ onPick }: { onPick: (templateId: string) => void }) {
   return (
     <div className="flex min-h-full flex-col items-center gap-10 px-10 pt-24 pb-32">
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-balance">{t("Nuovo documento")}</h1>
-        <p className="text-[13px] text-pretty text-muted-foreground">
+        <Headline text={t("Nuovo documento")} />
+        <p className="text-[15px] text-pretty text-muted-foreground">
           {company.name ? t("Scegli un modello: ogni parte si può modificare.") : t("Scegli un modello. Aggiungi i dati della tua azienda nelle Impostazioni per vederli nelle intestazioni.")}
         </p>
       </div>

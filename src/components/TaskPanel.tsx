@@ -8,6 +8,11 @@ import { PATTERNS, type Pattern } from "@/lib/redact";
 import { Segmented } from "@/components/Chrome";
 import type { Compression } from "@/lib/tools";
 import { t } from "@/lib/i18n";
+import barOcean from "@/assets/dither-bar-ocean.png";
+import barLime from "@/assets/dither-bar-lime.png";
+
+// A finished job shows a strip of the brand dither instead of a plain check.
+const DoneBar = ({ src }: { src: string }) => <img src={src} alt="" aria-hidden className="h-[29px] w-full [image-rendering:pixelated]" />;
 
 export type Task = "sign" | "compress" | "merge" | "ocr" | "redact";
 
@@ -53,15 +58,15 @@ export function TaskPanel(p: Props) {
   const [redacted, setRedacted] = useState<{ found: number; pages: number } | null>(null);
   const title = TASKS.find((x) => x.task === p.task)!.title;
   const save = (
-    <Button className="h-9 w-full rounded-[10px]" disabled={p.busy} onClick={p.onSave}>
+    <Button className="h-9 w-full rounded-full" disabled={p.busy} onClick={p.onSave}>
       {p.busy ? <Loader2 className="animate-spin" /> : <FileDown />} {t("Salva PDF…")}
     </Button>
   );
 
   return (
-    <aside className="float-panel float-enter fixed top-[60px] right-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-5 overflow-y-auto rounded-[16px] p-4 text-[13px]">
+    <aside className="float-panel float-enter fixed top-[60px] right-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-5 overflow-y-auto rounded-[14px] p-4 text-[13px]">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold">{title}</h2>
+        <h2 className="title-serif">{title}</h2>
         <Button variant="ghost" size="icon-sm" aria-label={t("Chiudi")} title={t("Torna all'editor completo")} onClick={p.onClose}>
           <X />
         </Button>
@@ -89,15 +94,15 @@ export function TaskPanel(p: Props) {
           </section>
           <section className="grid gap-2">
             <p className="text-muted-foreground">{t("Per siglare ogni foglio: metti la sigla su una pagina, selezionala e ripetila sulle altre.")}</p>
-            <Button variant="secondary" className="rounded-[10px]" disabled={!p.canRepeat} onClick={p.onRepeat}>
+            <Button variant="secondary" className="rounded-full" disabled={!p.canRepeat} onClick={p.onRepeat}>
               <Copy /> {t("Ripeti su tutte le pagine")}
             </Button>
           </section>
           <section className="grid grid-cols-2 gap-2">
-            <Button variant="secondary" className="rounded-[10px]" onClick={p.onDate}>
+            <Button variant="secondary" className="rounded-full" onClick={p.onDate}>
               <CalendarDays /> {t("Data")}
             </Button>
-            <Button variant="secondary" className="rounded-[10px]" onClick={p.onText}>
+            <Button variant="secondary" className="rounded-full" onClick={p.onText}>
               <Type /> {t("Testo")}
             </Button>
           </section>
@@ -131,7 +136,7 @@ export function TaskPanel(p: Props) {
               )}
             </dl>
           </section>
-          <Button className="h-9 w-full rounded-[10px]" disabled={p.busy} onClick={async () => setCompressed(await p.onCompress(level))}>
+          <Button className="h-9 w-full rounded-full" disabled={p.busy} onClick={async () => setCompressed(await p.onCompress(level))}>
             {p.busy ? <Loader2 className="animate-spin" /> : <FileDown />} {t("Comprimi e salva…")}
           </Button>
         </>
@@ -141,7 +146,7 @@ export function TaskPanel(p: Props) {
         <>
           <section className="grid gap-2">
             <p className="text-muted-foreground">{t("Trascina le pagine per cambiare l'ordine. Pagine in totale: {n}.", { n: p.pages })}</p>
-            <Button variant="secondary" className="rounded-[10px]" onClick={p.onAddPdf}>
+            <Button variant="secondary" className="rounded-full" onClick={p.onAddPdf}>
               <FilePlus2 /> {t("Aggiungi PDF…")}
             </Button>
           </section>
@@ -167,8 +172,9 @@ export function TaskPanel(p: Props) {
                 {redacted.found ? t("Oscurate {n} occorrenze in {pages} pagine. Controllale: ⌘Z annulla.", { n: redacted.found, pages: redacted.pages }) : t("Nessuna occorrenza trovata. Le pagine scansionate vanno prima rese ricercabili.")}
               </p>
             )}
+            {!!redacted?.found && <DoneBar src={barLime} />}
           </section>
-          <Button className="h-9 w-full rounded-[10px]" variant={redacted?.found ? "secondary" : "default"} disabled={p.busy || (!query.trim() && !patterns.length)} onClick={async () => setRedacted(await p.onRedact(query, patterns))}>
+          <Button className="h-9 w-full rounded-full" variant={redacted?.found ? "secondary" : "default"} disabled={p.busy || (!query.trim() && !patterns.length)} onClick={async () => setRedacted(await p.onRedact(query, patterns))}>
             <EyeOff /> {t("Trova e oscura")}
           </Button>
           {!!redacted?.found && save}
@@ -180,9 +186,10 @@ export function TaskPanel(p: Props) {
           <section className="grid gap-2">
             <p className="text-muted-foreground">{t("Riconosce il testo nelle pagine scansionate, così il PDF salvato si può cercare e copiare. Tutto avviene sul tuo computer.")}</p>
             {p.ocrPages > 0 && <p className="font-medium">{t("Pagine con testo riconosciuto: {n} di {total}.", { n: p.ocrPages, total: p.pages })}</p>}
+            {p.ocrPages > 0 && p.ocrPages >= p.pages && <DoneBar src={barOcean} />}
           </section>
           {p.ocrPages < p.pages ? (
-            <Button className="h-9 w-full rounded-[10px]" disabled={p.busy} onClick={p.onOcr}>
+            <Button className="h-9 w-full rounded-full" disabled={p.busy} onClick={p.onOcr}>
               {p.busy ? <Loader2 className="animate-spin" /> : <ScanText />} {t("Riconosci il testo")}
             </Button>
           ) : (

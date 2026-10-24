@@ -116,7 +116,7 @@ export function SettingsDialog({ open, onOpenChange, company }: { open: boolean;
             </span>
           </OptionRow>
           <OptionRow label={t("Licenze")} hint={t("CC BY-NC-SA 4.0; Ghostscript è AGPL-3.0")}>
-            <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={() => openExternal("https://github.com/logical-tech/pdf-toolkit/blob/main/THIRD_PARTY_NOTICES.md")}>
+            <Button variant="secondary" className="h-8 rounded-full px-3" onClick={() => openExternal("https://github.com/logical-tech/pdf-toolkit/blob/main/THIRD_PARTY_NOTICES.md")}>
               {t("Mostra")}
             </Button>
           </OptionRow>
@@ -128,11 +128,11 @@ export function SettingsDialog({ open, onOpenChange, company }: { open: boolean;
               </span>
             </div>
             {state.kind === "available" ? (
-              <Button className="h-8 rounded-[10px] px-3" onClick={() => install(state.update)}>
+              <Button className="h-8 rounded-full px-3" onClick={() => install(state.update)}>
                 {t("Installa e riavvia")}
               </Button>
             ) : (
-              <Button variant="secondary" className="h-8 rounded-[10px] px-3" disabled={state.kind === "checking" || state.kind === "installing" || version === "dev"} onClick={check}>
+              <Button variant="secondary" className="h-8 rounded-full px-3" disabled={state.kind === "checking" || state.kind === "installing" || version === "dev"} onClick={check}>
                 {(state.kind === "checking" || state.kind === "installing") && <Loader2 className="animate-spin" />}
                 {t("Controlla")}
               </Button>

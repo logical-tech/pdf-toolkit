@@ -47,7 +47,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
   };
 
   return (
-    <aside className="float-panel float-enter fixed top-[60px] left-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-3 rounded-[16px] p-3 text-[13px]">
+    <aside className="float-panel float-enter fixed top-[60px] left-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-3 rounded-[14px] p-3 text-[13px]">
       <div className="flex items-center gap-2">
         <Segmented
           value={tab}
@@ -96,7 +96,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
             })}
             {!bookmarks.length && <li className="px-2 py-3 text-muted-foreground">{t("Nessun segnalibro. Aggiungine uno per la pagina che stai guardando.")}</li>}
           </ul>
-          <Button variant="secondary" className="h-8 rounded-[10px]" onClick={addBookmark}>
+          <Button variant="secondary" className="h-8 rounded-full" onClick={addBookmark}>
             <BookmarkPlus /> {t("Aggiungi segnalibro")}
           </Button>
         </>
@@ -122,7 +122,7 @@ export function SidePanel({ base, pages, bookmarks, currentPage, attachments, on
           </ul>
           <Button
             variant="secondary"
-            className="h-8 rounded-[10px]"
+            className="h-8 rounded-full"
             onClick={async () => {
               const files = await pickFiles("*/*", true);
               const added = await Promise.all(files.map(async (f) => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })));

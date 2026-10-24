@@ -148,7 +148,7 @@ export function PagesView({ sources, pages, onPages, onAddPdf, onAddImages, onEx
         <FloatBar role="toolbar" aria-label={t("Azioni sulle pagine")}>
           <button
             onClick={() => setSelected(new Set(all ? [] : pages.map((p) => p.id)))}
-            className="inline-flex h-8 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
           >
             <SquareDashedMousePointer />
             <TextMorph>{ids.length ? t("{n} di {total}", { n: ids.length, total: pages.length }) : all ? t("Deseleziona") : t("Seleziona tutte")}</TextMorph>
@@ -174,7 +174,7 @@ export function PagesView({ sources, pages, onPages, onAddPdf, onAddImages, onEx
               render={
                 <button
                   aria-label={t("Altre azioni sulle pagine")}
-                  className="inline-flex size-8 items-center justify-center rounded-[10px] text-foreground/80 outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
+                  className="inline-flex size-8 items-center justify-center rounded-full text-foreground/80 outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent [&_svg]:size-[18px] [&_svg]:stroke-[1.75]"
                 />
               }
             >
@@ -296,10 +296,10 @@ function CropDialog({ open, onOpenChange, count, initial, onApply }: { open: boo
           ))}
         </OptionGroup>
         <DialogFooter>
-          <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={() => (onApply(undefined), onOpenChange(false))}>
+          <Button variant="ghost" className="h-9 rounded-full px-4" onClick={() => (onApply(undefined), onOpenChange(false))}>
             {t("Togli il ritaglio")}
           </Button>
-          <Button className="h-9 rounded-[10px] px-4" onClick={() => (onApply({ top: mm.top * MM, right: mm.right * MM, bottom: mm.bottom * MM, left: mm.left * MM }), onOpenChange(false))}>
+          <Button className="h-9 rounded-full px-4" onClick={() => (onApply({ top: mm.top * MM, right: mm.right * MM, bottom: mm.bottom * MM, left: mm.left * MM }), onOpenChange(false))}>
             {t("Ritaglia")}
           </Button>
         </DialogFooter>
@@ -334,10 +334,10 @@ function CleanDialog({ open, onOpenChange, count, onApply }: { open: boolean; on
           ))}
         </OptionGroup>
         <DialogFooter>
-          <Button variant="ghost" className="h-9 rounded-[10px] px-4" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" className="h-9 rounded-full px-4" onClick={() => onOpenChange(false)}>
             {t("Annulla")}
           </Button>
-          <Button className="h-9 rounded-[10px] px-4" disabled={!o.deskew && !o.grayscale && !o.whiten} onClick={() => (onApply(o), onOpenChange(false))}>
+          <Button className="h-9 rounded-full px-4" disabled={!o.deskew && !o.grayscale && !o.whiten} onClick={() => (onApply(o), onOpenChange(false))}>
             {t("Pulisci")}
           </Button>
         </DialogFooter>

@@ -1097,7 +1097,7 @@ export default function App() {
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <button data-tour="menu" className="inline-flex h-8 max-w-56 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent" />
+                  <button data-tour="menu" className="inline-flex h-8 max-w-56 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent" />
                 }
               >
                 <span className="truncate">{inWriter ? writer.name : doc ? doc.name : "PDF Toolkit"}</span>
@@ -1201,7 +1201,7 @@ export default function App() {
                     title={title}
                     aria-label={title}
                     onClick={() => startTask(k)}
-                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-[10px] px-2.5 text-[13px] font-medium text-foreground/80 outline-none transition-[background-color,color,scale] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:stroke-[1.75]"
+                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium text-foreground/80 outline-none transition-[background-color,color,scale] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96] focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4 [&_svg]:stroke-[1.75]"
                   >
                     <Icon /> <span className="hidden xl:inline">{title}</span>
                   </button>
@@ -1287,7 +1287,7 @@ export default function App() {
                   <button
                     onClick={fitWidth}
                     title={t("Adatta alla larghezza (⌘0)")}
-                    className="h-8 min-w-12 rounded-[10px] px-1 text-[13px] font-medium tabular-nums outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-8 min-w-12 rounded-full px-1 text-[13px] font-medium tabular-nums outline-none transition-[background-color] duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <TextMorph>{`${Math.round(scale * 100)}%`}</TextMorph>
                   </button>
@@ -1308,13 +1308,13 @@ export default function App() {
                 </span>
               )}
               {inWriter && writerDirty && !busy && (
-                <Button variant="ghost" className="h-8 rounded-[10px] px-3" onClick={discardWriter} title={writer.saved ? t("Torna all'ultima versione salvata") : t("Chiudi il documento senza salvarlo")}>
+                <Button variant="ghost" className="h-8 rounded-full px-3" onClick={discardWriter} title={writer.saved ? t("Torna all'ultima versione salvata") : t("Chiudi il documento senza salvarlo")}>
                   {t("Scarta")}
                 </Button>
               )}
               <Button
                 data-tour="save"
-                className="h-8 rounded-[10px] px-3.5"
+                className="h-8 rounded-full px-3.5"
                 onClick={actions.current.save}
                 disabled={busy}
                 title={(inWriter ? writer.path : doc?.path) ? t("Sovrascrive {name} (⌘S)", { name: inWriter ? `${writer.name}.lptk` : doc!.name }) : t("Scegli dove salvare (⌘S)")}

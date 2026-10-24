@@ -222,7 +222,7 @@ function Toolbar({ editor, margins, api, onExport }: { editor: Editor; margins: 
       <BarDivider />
       <Button
         variant="ghost"
-        className="h-8 shrink-0 rounded-[10px] px-2.5"
+        className="h-8 shrink-0 rounded-full px-2.5"
         disabled={exporting}
         onClick={async () => {
           setExporting(true);

@@ -130,10 +130,10 @@ export function SaveDialog({
           </OptionGroup>
 
           <DialogFooter className="pt-2">
-            <Button type="button" variant="ghost" className="h-9 rounded-[10px] px-4" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="ghost" className="h-9 rounded-full px-4" onClick={() => onOpenChange(false)}>
               {t("Annulla")}
             </Button>
-            <Button type="submit" className="h-9 rounded-[10px] px-4" disabled={protect && !options.pdfa && !options.password}>
+            <Button type="submit" className="h-9 rounded-full px-4" disabled={protect && !options.pdfa && !options.password}>
               {t("Scegli dove salvare…")}
             </Button>
           </DialogFooter>
@@ -150,9 +150,9 @@ export function StampsPanel({ stamps, onStamps, onClose }: { stamps: Stamps; onS
   const n = stamps.pageNumbers;
   const w = stamps.watermark;
   return (
-    <aside className="float-panel float-enter fixed top-[60px] right-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-5 overflow-y-auto rounded-[16px] p-4 text-[13px]">
+    <aside className="float-panel float-enter fixed top-[60px] right-3 z-10 flex max-h-[calc(100%-140px)] w-72 flex-col gap-5 overflow-y-auto rounded-[14px] p-4 text-[13px]">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold">{t("Timbri su tutte le pagine")}</h2>
+        <h2 className="title-serif">{t("Timbri su tutte le pagine")}</h2>
         <Button variant="ghost" size="icon-sm" aria-label={t("Chiudi")} onClick={onClose}>
           <X />
         </Button>

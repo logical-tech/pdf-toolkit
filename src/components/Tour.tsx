@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import diamond from "@/assets/dither-diamond-sm.png";
+import orb from "@/assets/dither-orb-sm.png";
 import { t } from "@/lib/i18n";
 
 // `target` is a data-tour name; a step without one (or whose element is not on screen) shows centred.
@@ -35,6 +37,7 @@ export const tourSeen = (name: TourName) => {
 };
 
 const CARD = 320;
+const ACCENT: Record<TourName, string> = { home: diamond, editor: orb };
 const PAD = 6;
 
 // Spotlights one element at a time with a short explanation; Esc or "Salta" ends it.
@@ -81,23 +84,24 @@ export function Tour({ name, onDone }: { name: TourName; onDone: () => void }) {
     ...(below ? { top: rect.bottom + PAD + 10 } : { bottom: window.innerHeight - rect.top + PAD + 10 }),
   };
   const card = (
-    <div key={i} className={cn("float-panel float-enter grid gap-3 rounded-[16px] p-4 text-[13px]", place && "absolute")} style={{ width: CARD, ...place }}>
-      <div className="grid gap-1">
-        <span className="text-xs text-muted-foreground tabular-nums">{t("{n} di {total}", { n: i + 1, total: steps.length })}</span>
-        <h2 className="text-[15px] font-semibold text-balance">{step.title}</h2>
-        <p className="text-muted-foreground text-pretty">{step.body}</p>
+    <div key={i} className={cn("float-panel float-enter relative grid gap-3 rounded-[14px] p-4 text-[13px]", place && "absolute")} style={{ width: CARD, ...place }}>
+      <img src={ACCENT[name]} alt="" aria-hidden className="pointer-events-none absolute top-2 right-4 size-14 [image-rendering:pixelated]" />
+      <div className="grid gap-1 pr-14">
+        <span className="label-mono text-muted-foreground">{t("{n} di {total}", { n: i + 1, total: steps.length })}</span>
+        <h2 className="title-serif text-balance">{step.title}</h2>
+        <p className="-mr-14 text-muted-foreground text-pretty">{step.body}</p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" className="-ml-2 h-8 rounded-[10px] px-2 text-muted-foreground" onClick={finish}>
+        <Button variant="ghost" className="-ml-2 h-8 rounded-full px-2 text-muted-foreground" onClick={finish}>
           {t("Salta")}
         </Button>
         <span className="flex-1" />
         {i > 0 && (
-          <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={back}>
+          <Button variant="secondary" className="h-8 rounded-full px-3" onClick={back}>
             {t("Indietro")}
           </Button>
         )}
-        <Button autoFocus className="h-8 rounded-[10px] px-3.5" onClick={next}>
+        <Button autoFocus className="h-8 rounded-full px-3.5" onClick={next}>
           {i < steps.length - 1 ? t("Avanti") : t("Fine")}
         </Button>
       </div>
@@ -110,13 +114,13 @@ export function Tour({ name, onDone }: { name: TourName; onDone: () => void }) {
         <>
           <div
             aria-hidden
-            className="pointer-events-none absolute rounded-[16px] shadow-[0_0_0_9999px_oklch(0_0_0/0.55)] ring-2 ring-ink transition-[top,left,width,height] duration-(--duration-fast) ease-(--ease-smooth-out) motion-reduce:transition-none"
+            className="pointer-events-none absolute rounded-[16px] shadow-[0_0_0_9999px_#0e0f1259] ring-2 ring-ink transition-[top,left,width,height] duration-(--duration-fast) ease-(--ease-smooth-out) motion-reduce:transition-none"
             style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2 }}
           />
           {card}
         </>
       ) : (
-        <div className="absolute inset-0 grid place-items-center bg-black/55">{card}</div>
+        <div className="absolute inset-0 grid place-items-center bg-[#0e0f12]/35">{card}</div>
       )}
     </div>
   );

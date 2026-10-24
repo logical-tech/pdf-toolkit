@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 // A capsule of the floating functional layer. Radius 14 with 4px padding keeps the 10px buttons inside concentric.
 export function FloatBar({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("float-surface float-enter pointer-events-auto flex items-center gap-0.5 rounded-[14px] p-1", className)} {...props}>
+    <div className={cn("float-surface float-enter pointer-events-auto flex items-center gap-0.5 rounded-full p-1", className)} {...props}>
       {children}
     </div>
   );
@@ -40,7 +40,7 @@ export function ToolButton({ label, shortcut, active, disabled, onClick, childre
             disabled={disabled}
             onClick={onClick}
             className={cn(
-              "inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] text-foreground/80 outline-none",
+              "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-foreground/80 outline-none",
               "transition-[background-color,color,scale] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96]",
               "focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-35",
               "[&_svg]:size-[18px] [&_svg]:stroke-[1.75]",
@@ -64,10 +64,10 @@ export function ToolButton({ label, shortcut, active, disabled, onClick, childre
 export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string; icon?: ReactNode }[]; onChange: (v: T) => void }) {
   const index = options.findIndex((o) => o.value === value);
   return (
-    <div role="tablist" className="relative grid rounded-[10px] bg-foreground/[0.07] p-0.5" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+    <div role="tablist" className="relative grid rounded-full bg-secondary p-0.5" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
       <span
         aria-hidden
-        className="absolute inset-y-0.5 left-0.5 rounded-[8px] bg-card shadow-[0_1px_2px_oklch(0_0_0/0.12),0_0_0_0.5px_oklch(0_0_0/0.06)] transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) motion-reduce:transition-none dark:bg-white/12"
+        className="absolute inset-y-0.5 left-0.5 rounded-full bg-(--seg-thumb) shadow-[0_1px_2px_#0e0f1214] transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) motion-reduce:transition-none"
         style={{ width: `calc((100% - 4px) / ${options.length})`, transform: `translateX(${index * 100}%)` }}
       />
       {options.map((o) => (
@@ -77,7 +77,7 @@ export function Segmented<T extends string>({ value, options, onChange }: { valu
           aria-selected={o.value === value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "relative z-10 inline-flex h-7 items-center justify-center gap-1.5 px-3 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring rounded-[8px]",
+            "relative z-10 inline-flex h-7 items-center justify-center gap-1.5 px-3 text-[13px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring rounded-full",
             "[&_svg]:size-4 [&_svg]:stroke-[1.75]",
             o.value === value ? "text-foreground" : "text-muted-foreground hover:text-foreground",
           )}
@@ -92,7 +92,7 @@ export function Segmented<T extends string>({ value, options, onChange }: { valu
 
 // Grouped option rows in the macOS settings manner: a tinted inset group, one setting per row.
 export function OptionGroup({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-border overflow-hidden rounded-[12px] bg-muted">{children}</div>;
+  return <div className="divide-y divide-border overflow-hidden rounded-[12px] border border-border">{children}</div>;
 }
 
 export function OptionRow({ label, hint, children, htmlFor }: { label: string; hint?: string; children?: ReactNode; htmlFor?: string }) {
@@ -120,7 +120,7 @@ export function ToolMenu({ label, active, icon, items, side = "top" }: { label: 
                   type="button"
                   aria-label={label}
                   className={cn(
-                    "relative inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] text-foreground/80 outline-none",
+                    "relative inline-flex size-8 shrink-0 items-center justify-center rounded-full text-foreground/80 outline-none",
                     "transition-[background-color,color,scale] duration-150 hover:bg-accent hover:text-foreground active:scale-[0.96] data-[popup-open]:bg-accent",
                     "focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-[18px] [&_svg]:stroke-[1.75]",
                     active && "bg-ink-soft text-ink hover:bg-ink-soft hover:text-ink",
@@ -146,5 +146,16 @@ export function ToolMenu({ label, active, icon, items, side = "top" }: { label: 
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+// Big titles end on the brand's serif italic: the last word of the (translated) title, with a full stop.
+export function Headline({ text }: { text: string }) {
+  const cut = text.lastIndexOf(" ") + 1;
+  return (
+    <h1 className="text-[36px] leading-[1.1] font-medium tracking-[-1.2px] text-balance">
+      {text.slice(0, cut)}
+      <span className="font-serif text-[42px] leading-none font-normal tracking-[-0.6px] italic">{text.slice(cut)}.</span>
+    </h1>
   );
 }

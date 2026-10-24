@@ -5,8 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-  --font-heading: var(--font-sans);
+  --font-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-heading: var(--font-serif);
+  --color-field: var(--field);
   --color-canvas: var(--canvas);
   --color-float: var(--float);
   --color-ink: var(--ink);
@@ -39,38 +42,40 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* The page sheet is the only thing at rest: a desk-grey canvas, white paper, and a floating
-   layer of controls. One accent, the blue of a ballpoint signature. */
+/* Warm paper: a cream desk, white sheets, ink-black actions, and one blue accent for what is active.
+   Dark mode keeps the same warmth: a near-black desk and cream ink. */
 :root {
-  --canvas: oklch(0.925 0 0);
-  --paper-shadow: 0 1px 2px oklch(0 0 0 / 0.08), 0 6px 24px -6px oklch(0 0 0 / 0.16);
+  --canvas: #f3f1ec;
+  --paper-shadow: 0 0 0 1px #d6d2c8, 0 10px 30px #0e0f1214;
   --paper-filter: none;
-  --float: oklch(0.995 0 0 / 0.78);
-  --float-solid: oklch(0.99 0 0);
-  --float-edge: oklch(0 0 0 / 0.08);
-  --float-shadow: 0 0 0 0.5px oklch(0 0 0 / 0.08), 0 2px 4px oklch(0 0 0 / 0.04), 0 10px 32px -8px oklch(0 0 0 / 0.2);
-  --ink: oklch(0.46 0.2 266);
-  --ink-foreground: oklch(0.99 0 0);
-  --ink-soft: oklch(0.46 0.2 266 / 0.12);
+  --float: #fbfaf7e6;
+  --float-solid: #fbfaf7;
+  --float-edge: #d6d2c8;
+  --float-shadow: 0 1px 2px #0e0f120f, 0 12px 32px #0e0f1214;
+  --field: #ffffff;
+  --seg-thumb: #ffffff;
+  --ink: #2462ea;
+  --ink-foreground: #ffffff;
+  --ink-soft: #2462ea1f;
 
   --background: var(--canvas);
-  --foreground: oklch(0.2 0.004 264);
+  --foreground: #0e0f12;
   --card: var(--float-solid);
   --card-foreground: var(--foreground);
   --popover: var(--float-solid);
   --popover-foreground: var(--foreground);
-  --primary: var(--ink);
-  --primary-foreground: var(--ink-foreground);
-  --secondary: oklch(0 0 0 / 0.06);
+  --primary: var(--foreground);
+  --primary-foreground: var(--canvas);
+  --secondary: #e8e5dd;
   --secondary-foreground: var(--foreground);
-  --muted: oklch(0 0 0 / 0.05);
-  --muted-foreground: oklch(0.46 0.006 264);
-  --accent: oklch(0 0 0 / 0.06);
+  --muted: #e8e5dd99;
+  --muted-foreground: #55585f;
+  --accent: #e8e5dd;
   --accent-foreground: var(--foreground);
-  --destructive: oklch(0.56 0.21 27);
-  --border: oklch(0 0 0 / 0.1);
-  --input: oklch(0 0 0 / 0.14);
-  --ring: oklch(0.46 0.2 266 / 0.55);
+  --destructive: #e40014;
+  --border: #d6d2c8;
+  --input: #d6d2c8;
+  --ring: #2462ea8c;
   --radius: 0.625rem;
 
   --duration-quick: 150ms;
@@ -80,27 +85,29 @@
 }
 
 .dark {
-  --canvas: oklch(0.19 0 0);
-  --paper-shadow: 0 0 0 1px oklch(1 0 0 / 0.07), 0 1px 2px oklch(0 0 0 / 0.5), 0 14px 36px -6px oklch(0 0 0 / 0.75);
+  --canvas: #121211;
+  --paper-shadow: 0 0 0 1px #ffffff14, 0 12px 36px #00000099;
   /* HIG: soften white sheets so they don't glow in a dark room */
   --paper-filter: brightness(0.92);
-  --float: oklch(0.27 0.004 264 / 0.74);
-  --float-solid: oklch(0.26 0.004 264);
-  --float-edge: oklch(1 0 0 / 0.1);
-  --float-shadow: 0 0 0 0.5px oklch(1 0 0 / 0.12), 0 2px 4px oklch(0 0 0 / 0.3), 0 12px 36px -8px oklch(0 0 0 / 0.65);
-  --ink: oklch(0.62 0.17 264);
-  --ink-foreground: oklch(0.15 0.02 264);
-  --ink-soft: oklch(0.62 0.17 264 / 0.2);
+  --float: #1c1b19e6;
+  --float-solid: #1c1b19;
+  --float-edge: #312f2b;
+  --float-shadow: 0 1px 2px #00000066, 0 12px 32px #00000080;
+  --field: #ffffff0a;
+  --seg-thumb: #34322e;
+  --ink: #6e9bff;
+  --ink-foreground: #0e0f12;
+  --ink-soft: #6e9bff29;
 
-  --foreground: oklch(0.96 0.002 264);
-  --secondary: oklch(1 0 0 / 0.08);
-  --muted: oklch(1 0 0 / 0.06);
-  --muted-foreground: oklch(0.72 0.006 264);
-  --accent: oklch(1 0 0 / 0.09);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(1 0 0 / 0.1);
-  --input: oklch(1 0 0 / 0.16);
-  --ring: oklch(0.62 0.17 264 / 0.6);
+  --foreground: #f3f1ec;
+  --secondary: #2a2925;
+  --muted: #2a292599;
+  --muted-foreground: #a6a29a;
+  --accent: #2a2925;
+  --destructive: #ff5b5f;
+  --border: #312f2b;
+  --input: #3a3833;
+  --ring: #6e9bff8c;
 }
 
 @layer base {
@@ -132,14 +139,14 @@
   /* The floating functional layer: translucent capsule over the canvas (HIG regular glass). */
   .float-surface {
     background: var(--float);
-    box-shadow: var(--float-shadow);
+    box-shadow: inset 0 0 0 1px var(--float-edge);
     backdrop-filter: blur(24px) saturate(1.6);
     -webkit-backdrop-filter: blur(24px) saturate(1.6);
   }
   /* Large panels carry text, so they take a thicker material that reads as one tone over paper or canvas. */
   .float-panel {
-    background: color-mix(in oklch, var(--float-solid) 95%, transparent);
-    box-shadow: var(--float-shadow);
+    background: var(--float-solid);
+    box-shadow: inset 0 0 0 1px var(--float-edge), var(--float-shadow);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
   }
@@ -171,6 +178,22 @@
     .float-enter {
       animation: none;
     }
+  }
+
+  /* Panel and dialog titles: the serif voice of the brand. */
+  .title-serif {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.2px;
+    line-height: 1.1;
+  }
+  /* Small uppercase labels: step counters, credits. */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 
   .canvas-scroll {

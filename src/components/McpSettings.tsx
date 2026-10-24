@@ -73,7 +73,7 @@ export function McpSettings() {
           </span>
         </OptionRow>
         <OptionRow label={t("Chiave di accesso")} hint={t("Chi ha la chiave può modificare i documenti aperti. Cambiala se l'hai condivisa per errore.")}>
-          <Button variant="secondary" className="h-8 rounded-[10px] px-3" onClick={() => apply({ ...config, token: newToken() })}>
+          <Button variant="secondary" className="h-8 rounded-full px-3" onClick={() => apply({ ...config, token: newToken() })}>
             <RefreshCw /> {t("Rigenera")}
           </Button>
         </OptionRow>

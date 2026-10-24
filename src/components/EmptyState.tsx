@@ -2,13 +2,18 @@ import { FileText, FileUp } from "lucide-react";
 import type { Recent } from "@/lib/desktop";
 import { Button } from "@/components/ui/button";
 import { LogicalMark } from "@/components/LogicalMark";
+import { Headline } from "@/components/Chrome";
+import arc from "@/assets/dither-arc.png";
 import { t } from "@/lib/i18n";
 
 // A blank sheet with a signature being written on it: the app's one authored motion moment.
 export function EmptyState({ onOpen, recent, onRecent }: { onOpen: () => void; recent: Recent[]; onRecent: (path: string) => void }) {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-10 px-6 py-24">
-      <button data-tour="drop" onClick={onOpen} aria-label={t("Apri un PDF")} className="paper group relative h-[340px] w-[264px] -rotate-2 rounded-[3px] outline-none transition-[rotate,scale] duration-(--duration-slow) ease-(--ease-smooth-out) hover:rotate-0 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none">
+      <div className="relative -mb-2">
+      {/* Decorative dither arc behind the sheet, as in the brand artwork (880x470, rising 119px above it). */}
+      <img src={arc} alt="" aria-hidden className="pointer-events-none absolute -top-[119px] left-1/2 w-[880px] max-w-none -translate-x-1/2 [image-rendering:pixelated]" />
+      <button data-tour="drop" onClick={onOpen} aria-label={t("Apri un PDF")} className="paper group relative h-[340px] w-[264px] rounded-[3px] outline-none transition-[scale] duration-(--duration-slow) ease-(--ease-smooth-out) hover:rotate-0 hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-ring motion-reduce:transition-none">
         <div className="absolute inset-x-7 top-9 space-y-2.5" aria-hidden>
           {[92, 100, 84, 96, 60].map((w, i) => (
             <div key={i} className="h-1.5 rounded-full bg-black/[0.07]" style={{ width: `${w}%` }} />
@@ -26,13 +31,14 @@ export function EmptyState({ onOpen, recent, onRecent }: { onOpen: () => void; r
           <path d="M2 62h170" stroke="black" strokeOpacity="0.18" strokeWidth="1" />
         </svg>
       </button>
-
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-balance">{t("Trascina qui un PDF o delle immagini")}</h1>
-        <p className="text-[13px] text-muted-foreground text-pretty">{t("Firma, compila e sistema i tuoi documenti. Tutto resta sul tuo computer.")}</p>
       </div>
 
-      <Button className="h-9 rounded-[10px] px-4" onClick={onOpen}>
+      <div className="flex flex-col items-center gap-3.5 text-center">
+        <Headline text={t("Trascina qui un PDF o delle immagini")} />
+        <p className="text-[16px] text-muted-foreground text-pretty">{t("Firma, compila e sistema i tuoi documenti. Tutto resta sul tuo computer.")}</p>
+      </div>
+
+      <Button className="h-9 rounded-full px-4" onClick={onOpen}>
         <FileUp /> {t("Apri PDF")}
       </Button>
 
@@ -48,7 +54,7 @@ export function EmptyState({ onOpen, recent, onRecent }: { onOpen: () => void; r
         </div>
       )}
 
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <p className="label-mono flex items-center gap-1.5 text-muted-foreground">
         <LogicalMark className="size-3.5" /> {t("Realizzato da Logical")}
       </p>
     </div>

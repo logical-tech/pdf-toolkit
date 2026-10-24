@@ -105,11 +105,11 @@ export function BatchDialog({ open, onOpenChange }: { open: boolean; onOpenChang
 
         <DialogFooter>
           {done ? (
-            <Button className="rounded-[10px]" onClick={() => onOpenChange(false)}>
+            <Button className="rounded-full" onClick={() => onOpenChange(false)}>
               {t("Fine")}
             </Button>
           ) : (
-            <Button className="rounded-[10px]" disabled={running || !rows.length} onClick={start}>
+            <Button className="rounded-full" disabled={running || !rows.length} onClick={start}>
               {running && <Loader2 className="animate-spin" />}
               {running ? t("Elaborazione…") : t("Avvia su {n} file", { n: rows.length })}
             </Button>
